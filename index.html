@@ -3,63 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eksplorasi Gunung Betung 3D</title>
-    <style>
-        /* RESET & BASE STYLES */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { overflow: hidden; background-color: #f4f4f9; color: #333; }
-        
-        /* UTILITIES */
-        .hidden { display: none !important; }
-        button { cursor: pointer; border: none; border-radius: 5px; padding: 10px 15px; font-weight: bold; transition: 0.2s; }
-        button:hover { opacity: 0.8; }
-        
-        /* PAGE 1: INFO */
-        #page-info { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; text-align: center; }
-        #page-info h1 { font-size: 3rem; margin-bottom: 20px; }
-        #page-info p { max-width: 600px; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px; }
-        .btn-start { background-color: #ff9800; color: white; font-size: 1.2rem; padding: 15px 30px; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-
-        /* PAGE 2: 3D VIEWER */
-        #page-viewer { width: 100vw; height: 100vh; position: relative; }
-        #canvas-container { width: 100%; height: 100%; display: block; }
-        
-        /* UI OVERLAYS */
-        .top-bar { position: absolute; top: 0; left: 0; width: 100%; padding: 15px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 10; }
-        .top-bar > * { pointer-events: auto; }
-        .btn-back { background-color: #fff; color: #333; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .mode-controls { display: flex; gap: 10px; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .btn-mode { background: #e0e0e0; color: #333; }
-        .btn-mode.active { background: #4CAF50; color: white; }
-
-        /* LEGEND */
-        #legend { position: absolute; bottom: 20px; left: 20px; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 10; }
-        #legend h3 { margin-bottom: 10px; font-size: 1rem; }
-        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-size: 0.9rem; }
-        .color-box { width: 20px; height: 20px; border-radius: 3px; }
-
-        /* LOADING SCREEN */
-        #loading { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); color: white; display: flex; align-items: center; justify-content: center; z-index: 50; font-size: 1.5rem; }
-
-        /* POPUP 360 */
-        #popup-360 { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 100; display: flex; flex-direction: column; }
-        #canvas-360 { flex-grow: 1; width: 100%; }
-        .popup-header { position: absolute; top: 0; left: 0; width: 100%; padding: 15px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); color: white; z-index: 101; pointer-events: none;}
-        .popup-header > * { pointer-events: auto; }
-        .popup-desc { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 15px 25px; border-radius: 8px; text-align: center; max-width: 80%; pointer-events: none; z-index: 101;}
-        .btn-close { background: #f44336; color: white; }
-
-        /* POPUP DETAIL (GEOLOGI) */
-        #popup-detail { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 600px; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 200; display: flex; flex-direction: column; }
-        #popup-detail img { width: 100%; height: 250px; object-fit: cover; }
-        .detail-content { padding: 20px; }
-        .detail-content h2 { margin-bottom: 10px; }
-        .detail-content p { line-height: 1.5; color: #555; }
-        .detail-close-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; padding: 0; }
-        
-        /* INSTRUCTIONS OVERLAY */
-        .instruction { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; pointer-events: none; z-index: 5; }
-    </style>
+    <title>Eksplorasi Interaktif Gunung Betung</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <script type="importmap">
         {
@@ -69,54 +15,263 @@
             }
         }
     </script>
+
+    <style>
+        /* =========================================
+           CSS VARIABLES & RESET
+        ========================================= */
+        :root {
+            --primary: #2b5329; /* Hijau natural */
+            --primary-hover: #1f3d1e;
+            --secondary: #8d6e63; /* Coklat tanah */
+            --bg-light: #f9faf8;
+            --text-dark: #2c3e50;
+            --text-light: #ecf0f1;
+            --font-main: 'Inter', sans-serif;
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-main); background-color: var(--bg-light); color: var(--text-dark); overflow-x: hidden; }
+        
+        button { font-family: inherit; cursor: pointer; border: none; outline: none; transition: var(--transition-smooth); }
+        .hidden { display: none !important; opacity: 0; pointer-events: none; }
+
+        /* =========================================
+           SPA LAYOUT & ANIMATION
+        ========================================= */
+        .page { width: 100vw; min-height: 100vh; position: absolute; top: 0; left: 0; transition: opacity 0.5s ease-in-out; }
+        .page:not(.active) { opacity: 0; z-index: -1; pointer-events: none; }
+        .page.active { opacity: 1; z-index: 10; pointer-events: auto; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================
+           HALAMAN 1: INFORMASI GUNUNG BETUNG
+        ========================================= */
+        #page-info { background: var(--bg-light); overflow-y: auto; display: flex; flex-direction: column; }
+        
+        .hero {
+            height: 70vh; background: linear-gradient(rgba(43,83,41,0.8), rgba(43,83,41,0.6)), url('https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=1920&q=80') center/cover;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; padding: 2rem;
+        }
+        .hero h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: fadeInUp 0.8s ease forwards; }
+        .hero p { font-size: 1.2rem; max-width: 600px; margin-bottom: 2rem; animation: fadeInUp 1s ease forwards; opacity: 0; }
+        .btn-explore { padding: 15px 35px; font-size: 1.1rem; font-weight: 600; border-radius: 50px; background: white; color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.15); animation: fadeInUp 1.2s ease forwards; opacity: 0; }
+        .btn-explore:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(0,0,0,0.2); background: var(--bg-light); }
+
+        .content-container { max-width: 1200px; margin: -50px auto 40px; padding: 0 20px; position: relative; z-index: 5; }
+        
+        .grid-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px; }
+        
+        .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: var(--transition-smooth); border-top: 4px solid var(--primary); }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .card h2 { color: var(--primary); font-size: 1.5rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .card p, .card ul { line-height: 1.7; color: #555; }
+        .card ul { padding-left: 20px; margin-top: 10px; }
+        .card li { margin-bottom: 8px; }
+
+        .list-section { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .list-item { background: #f4f6f4; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary); }
+        .list-item h4 { color: var(--secondary); margin-bottom: 5px; }
+
+        /* =========================================
+           HALAMAN 2: 3D VIEWER
+        ========================================= */
+        #page-3d { background: #1a1a1a; overflow: hidden; }
+        #webgl-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+        
+        /* UI Overlays */
+        .ui-overlay { position: absolute; z-index: 20; pointer-events: none; }
+        .ui-overlay > * { pointer-events: auto; }
+        
+        /* Header Bar */
+        .top-bar { top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .btn-back { background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .btn-back:hover { background: white; transform: translateX(-3px); }
+        
+        /* Mode Controls */
+        .mode-panel { background: rgba(255,255,255,0.95); padding: 10px; border-radius: 12px; display: flex; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); backdrop-filter: blur(5px); }
+        .btn-mode { padding: 10px 20px; border-radius: 8px; font-weight: 600; background: transparent; color: #555; transition: var(--transition-smooth); }
+        .btn-mode.active { background: var(--primary); color: white; box-shadow: 0 2px 10px rgba(43,83,41,0.4); }
+
+        /* Loader */
+        #loader { top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px 40px; border-radius: 30px; font-weight: 600; display: flex; align-items: center; gap: 15px; z-index: 50; transition: opacity 0.3s; }
+        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Legend */
+        #legend { bottom: 20px; left: 20px; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: opacity 0.3s, transform 0.3s; transform: translateY(0); }
+        #legend.hidden { transform: translateY(20px); opacity: 0; }
+        #legend h3 { margin-bottom: 12px; font-size: 1rem; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; color: #444; font-weight: 600; }
+        .color-box { width: 18px; height: 18px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); }
+
+        /* Tooltip & Instructions */
+        .instruction { bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; backdrop-filter: blur(4px); animation: pulse 2s infinite; pointer-events: none;}
+        @keyframes pulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
+
+        /* =========================================
+           POPUP 360 & DETAIL
+        ========================================= */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; transition: opacity 0.4s; }
+        .popup-overlay:not(.active) { opacity: 0; pointer-events: none; }
+        
+        #popup-360 { background: #000; }
+        .header-360 { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); display: flex; justify-content: space-between; align-items: flex-start; z-index: 101; pointer-events: none;}
+        .header-360 > * { pointer-events: auto; }
+        .title-360 { color: white; }
+        .title-360 h2 { font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .title-360 p { font-size: 0.9rem; max-width: 400px; color: #ddd; }
+        .btn-close { background: rgba(255,60,60,0.9); color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-close:hover { background: #ff1a1a; transform: scale(1.1); }
+
+        #popup-detail { background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); z-index: 150;}
+        .detail-card { background: white; width: 90%; max-width: 800px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.4s; position: relative;}
+        #popup-detail.active .detail-card { transform: translateY(0); }
+        .detail-img { width: 100%; height: 300px; object-fit: cover; background: #ddd; display: block; }
+        .detail-content { padding: 30px; }
+        .detail-content h2 { color: var(--primary); margin-bottom: 15px; font-size: 1.8rem;}
+        .detail-content p { line-height: 1.8; color: #444; font-size: 1rem; }
+        .btn-close-detail { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        .btn-close-detail:hover { background: #000; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .top-bar { flex-direction: column-reverse; gap: 15px; align-items: center; }
+            .header-360 { flex-direction: column-reverse; align-items: flex-end; gap: 10px; }
+            .title-360 { align-self: flex-start; }
+            .detail-img { height: 200px; }
+            .detail-content { padding: 20px; }
+            .instruction { width: 90%; text-align: center; font-size: 0.8rem; }
+        }
+    </style>
 </head>
 <body>
 
-    <div id="page-info">
-        <h1>Gunung Betung Explorer</h1>
-        <p>Gunung Betung adalah sebuah gunung yang terletak di Provinsi Lampung, Indonesia. Memiliki pesona alam, keanekaragaman geologi, dan bentuk morfometri yang unik. Gunakan aplikasi ini untuk mengeksplorasi model 3D interaktif dari citra satelit, peta geologi, hingga struktur morfometri.</p>
-        <button class="btn-start" id="btn-start">Mulai Eksplorasi 3D</button>
+    <div id="page-info" class="page active">
+        <div class="hero">
+            <h1>Gunung Betung</h1>
+            <p>Eksplorasi virtual lanskap vulkanik, morfometri, dan geologi di Provinsi Lampung.</p>
+            <button class="btn-explore" id="btn-start">Eksplorasi 3D Interaktif</button>
+        </div>
+
+        <div class="content-container">
+            <div class="grid-section">
+                <div class="card">
+                    <h2>🌋 Tentang Gunung Betung</h2>
+                    <p>Gunung Betung merupakan gunung api yang terletak di Provinsi Lampung dan termasuk dalam rangkaian Busur Sunda yang terbentuk akibat proses subduksi lempeng Indo-Australia ke bawah Eurasia.</p>
+                    <p style="margin-top: 10px;">Gunung ini memiliki ketinggian sekitar 1.240 meter di atas permukaan laut dan dikelilingi oleh hutan tropis yang masih relatif alami. Saat ini, Gunung Betung tidak memiliki catatan erupsi modern sehingga dikategorikan sebagai gunung api tua atau dorman.</p>
+                </div>
+
+                <div class="card">
+                    <h2>🌿 Potensi Pariwisata</h2>
+                    <p>Gunung Betung menawarkan pengalaman wisata alam yang memadukan keindahan lanskap dengan nilai edukasi geologi. Berada di kawasan Tahura Wan Abdul Rachman, area ini memiliki:</p>
+                    <ul>
+                        <li>Jalur trekking dengan tingkat kesulitan ringan hingga menengah</li>
+                        <li>Hutan hujan tropis yang masih terjaga</li>
+                        <li>Aliran sungai dan air terjun alami</li>
+                        <li>Panorama puncak dengan pemandangan Teluk Lampung</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grid-section">
+                <div class="card">
+                    <h2>🪨 Geologi Gunung Betung</h2>
+                    <p>Gunung Betung terbentuk dari aktivitas vulkanik yang berkaitan dengan sistem subduksi.</p>
+                    
+                    <div class="list-section">
+                        <div class="list-item">
+                            <h4>Litologi Utama</h4>
+                            <p>Andesit, Basalt, Breksi vulkanik, Tuf.</p>
+                        </div>
+                        <div class="list-item">
+                            <h4>Karakteristik</h4>
+                            <ul>
+                                <li>Tekstur porfiritik dengan fenokris plagioklas</li>
+                                <li>Struktur vesikular akibat gas dalam magma</li>
+                            </ul>
+                        </div>
+                        <div class="list-item">
+                            <h4>Alterasi</h4>
+                            <p>Kloritisasi, Serisitasi, Oksidasi (warna merah/coklat). Hal ini mengindikasikan adanya aktivitas fluida panas setelah pembentukan batuan.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="align-self: start;">
+                    <h2>⛰️ Morfologi</h2>
+                    <p>Secara morfologi, Gunung Betung menunjukkan ciri gunung api yang telah mengalami erosi intensif:</p>
+                    <ul>
+                        <li>Lereng relatif terjal</li>
+                        <li>Bentuk tidak lagi simetris sempurna</li>
+                        <li>Proses erosi lebih dominan dibanding aktivitas konstruksi</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="page-viewer" class="hidden">
-        <div class="top-bar">
-            <button class="btn-back" id="btn-back">⬅ Kembali</button>
-            <div class="mode-controls">
+    <div id="page-3d" class="page">
+        <div id="webgl-container"></div>
+
+        <div id="loader" class="ui-overlay hidden">
+            <div class="spinner"></div>
+            <span id="loader-text">Memuat Model...</span>
+        </div>
+
+        <div class="ui-overlay top-bar">
+            <button class="btn-back" id="btn-back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Kembali
+            </button>
+            
+            <div class="mode-panel">
                 <button class="btn-mode active" data-mode="satellite">Satelit</button>
                 <button class="btn-mode" data-mode="geology">Geologi</button>
                 <button class="btn-mode" data-mode="morphometry">Morfometri</button>
             </div>
         </div>
 
-        <div class="instruction">Tahan klik kiri untuk memutar, scroll untuk zoom. Klik titik merah untuk melihat 360.</div>
-
-        <div id="legend" class="hidden">
+        <div id="legend" class="ui-overlay hidden">
             <h3>Legenda Geologi</h3>
-            <div class="legend-item"><div class="color-box" style="background:#ff5555;"></div> Batuan Vulkanik</div>
-            <div class="legend-item"><div class="color-box" style="background:#55ff55;"></div> Endapan Permukaan</div>
-            <div class="legend-item"><div class="color-box" style="background:#5555ff;"></div> Intrusi Magma</div>
+            <div class="legend-item"><div class="color-box" style="background:#ff5555;"></div> Andesit</div>
+            <div class="legend-item"><div class="color-box" style="background:#5555ff;"></div> Basalt</div>
+            <div class="legend-item"><div class="color-box" style="background:#55ff55;"></div> Breksi Vulkanik</div>
+            <div class="legend-item"><div class="color-box" style="background:#ffff55;"></div> Tuf</div>
         </div>
 
-        <div id="loading" class="hidden">Memuat Model...</div>
-        <div id="canvas-container"></div>
-    </div>
-
-    <div id="popup-360" class="hidden">
-        <div class="popup-header">
-            <h2 id="title-360">Lokasi 360</h2>
-            <button class="btn-close" id="btn-close-360">Tutup 360</button>
+        <div class="ui-overlay instruction" id="main-instruction">
+            Gunakan mouse untuk putar (Kiri), geser (Kanan), & zoom (Scroll). Klik titik merah untuk lihat 360°.
         </div>
-        <div class="instruction">Geser untuk melihat sekeliling. Klik titik kuning untuk detail geologi.</div>
-        <div id="canvas-360"></div>
-        <div class="popup-desc" id="desc-360">Deskripsi Lokasi...</div>
     </div>
 
-    <div id="popup-detail" class="hidden">
-        <button class="detail-close-btn" id="btn-close-detail">✖</button>
-        <img id="detail-img" src="" alt="Detail Geologi">
-        <div class="detail-content">
-            <h2 id="detail-title">Judul Detail</h2>
-            <p id="detail-desc">Penjelasan proses geologi...</p>
+    <div id="popup-360" class="popup-overlay">
+        <div class="header-360">
+            <div class="title-360">
+                <h2 id="title-360">Judul Lokasi</h2>
+                <p id="desc-360">Deskripsi singkat lokasi 360 derajat di sini.</p>
+            </div>
+            <button class="btn-close" id="btn-close-360">✖</button>
+        </div>
+        <div class="ui-overlay instruction" style="z-index: 102;">
+            Drag untuk melihat sekeliling. Klik titik kuning untuk detail geologi.
+        </div>
+    </div>
+
+    <div id="popup-detail" class="popup-overlay">
+        <div class="detail-card">
+            <button class="btn-close-detail" id="btn-close-detail">✖</button>
+            <img id="detail-img" class="detail-img" src="" alt="Detail Geologi">
+            <div class="detail-content">
+                <h2 id="detail-title">Judul Geologi</h2>
+                <p id="detail-desc">Penjelasan panjang mengenai struktur geologi, litologi, alterasi, dan proses pembentukannya akan muncul di sini.</p>
+            </div>
         </div>
     </div>
 
@@ -125,371 +280,391 @@
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // --- MANAJEMEN HALAMAN (UI) ---
-        const pageInfo = document.getElementById('page-info');
-        const pageViewer = document.getElementById('page-viewer');
-        const legend = document.getElementById('legend');
-        const loadingScreen = document.getElementById('loading');
-        
-        document.getElementById('btn-start').addEventListener('click', () => {
-            pageInfo.classList.add('hidden');
-            pageViewer.classList.remove('hidden');
-            initMainScene();
-        });
-
-        document.getElementById('btn-back').addEventListener('click', () => {
-            pageViewer.classList.add('hidden');
-            pageInfo.classList.remove('hidden');
-            stopMainAnimation();
-        });
-
-        // --- DATA HOTSPOT ---
-        // Anda dapat menambahkan lebih banyak hotspot di sini
-        const hotspotsData = [
-            {
-                id: 1,
-                position: new THREE.Vector3(0, 1, 0), // Sesuaikan koordinat Y dengan tinggi model Anda
-                title: "Puncak Gunung Betung",
-                desc: "Pemandangan indah dari titik tertinggi Gunung Betung dengan vegetasi lebat.",
-                img360: "panorama_puncak.jpg", // Ganti dengan URL gambar 360 equirectangular Anda
-                geoHotspots: [
-                    {
-                        // Posisi spherical dalam viewer 360 (Radius, Phi, Theta)
-                        spherical: { radius: 450, phi: Math.PI / 2, theta: Math.PI / 4 },
-                        title: "Singkapan Andesit",
-                        hiResImg: "batu_andesit.jpg", // Ganti dengan URL foto asli Anda
-                        desc: "Batuan andesit ini terbentuk dari pendinginan magma menengah (intermediate) yang keluar ke permukaan bumi secara cepat."
-                    }
-                ]
-            },
-            {
-                id: 2,
-                position: new THREE.Vector3(5, -5, -10),
-                title: "Lereng Curam",
-                desc: "Area lereng dengan tingkat kemiringan tinggi, menunjukkan struktur patahan masa lampau.",
-                img360: "panorama_lereng.jpg",
-                geoHotspots: []
-            }
-        ];
-
-        // --- VARIABEL GLOBAL THREE.JS MAIN SCENE ---
-        let mainScene, mainCamera, mainRenderer, mainControls;
-        let currentModel = null;
-        let mainHotspotsGroup = new THREE.Group();
-        let mainAnimationId = null;
-        const mainRaycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        let isMainSceneInitialized = false;
-
-        // File GLB untuk setiap mode
-        const models = {
+        // ----------------------------------------------------
+        // 1. DATA & KONFIGURASI
+        // ----------------------------------------------------
+        const MODELS = {
             satellite: 'betung_satellite.glb',
             geology: 'betung_geology.glb',
             morphometry: 'betung_morphometry.glb'
         };
 
-        // --- INISIALISASI MAIN SCENE ---
-        function initMainScene() {
-            if (isMainSceneInitialized) {
-                startMainAnimation();
-                return;
+        // Dummy Data Hotspot (Ganti koordinat & URL aset sesuai milik Anda)
+        const HOTSPOTS_DATA = [
+            {
+                id: 'hp1',
+                position: new THREE.Vector3(0, 15, 5), // Sesuaikan dgn tinggi model Anda
+                title: "Puncak Gunung Betung",
+                desc: "Pemandangan dari area puncak memperlihatkan vegetasi rapat dan morfologi sisa kawah kuno.",
+                img360: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=2000&q=80", // Placeholder 360
+                innerHotspots: [
+                    {
+                        spherical: { radius: 400, phi: Math.PI / 2.2, theta: Math.PI / 4 },
+                        title: "Singkapan Andesit Porfiritik",
+                        hiResImg: "https://images.unsplash.com/photo-1617482937748-0c6e83863a87?auto=format&fit=crop&w=1000&q=80",
+                        desc: "Batuan andesit ini menunjukkan tekstur porfiritik yang jelas dengan fenokris plagioklas. Pembentukan terjadi akibat pendinginan magma intermediate secara dua tahap, di mana fenokris terbentuk lebih lambat di kedalaman sebelum massa dasar mendingin cepat di permukaan."
+                    }
+                ]
+            },
+            {
+                id: 'hp2',
+                position: new THREE.Vector3(15, 5, -10),
+                title: "Lereng Terjal & Zona Alterasi",
+                desc: "Area lereng ini menunjukkan bukti alterasi hidrotermal yang intensif.",
+                img360: "https://images.unsplash.com/photo-1596328546171-77e37b5fec33?auto=format&fit=crop&w=2000&q=80",
+                innerHotspots: [
+                    {
+                        spherical: { radius: 400, phi: Math.PI / 2, theta: -Math.PI / 2 },
+                        title: "Zona Oksidasi",
+                        hiResImg: "https://images.unsplash.com/photo-1525011268546-bf3f9b007f6a?auto=format&fit=crop&w=1000&q=80",
+                        desc: "Warna merah bata hingga kecoklatan menunjukkan proses oksidasi yang kuat. Mineral besi yang terkandung dalam batuan vulkanik bereaksi dengan fluida panas (hidrotermal) atau air meteorik di permukaan, membentuk oksida besi seperti hematit atau limonit."
+                    }
+                ]
             }
+        ];
 
-            const container = document.getElementById('canvas-container');
-            
-            // Scene & Camera
-            mainScene = new THREE.Scene();
-            mainScene.background = new THREE.Color('#cce0ff');
-            
-            mainCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            mainCamera.position.set(0, 50, 100);
+        // ----------------------------------------------------
+        // 2. STATE MANAGER & UI CONTROLLER
+        // ----------------------------------------------------
+        const DOM = {
+            pageInfo: document.getElementById('page-info'),
+            page3d: document.getElementById('page-3d'),
+            container3d: document.getElementById('webgl-container'),
+            loader: document.getElementById('loader'),
+            legend: document.getElementById('legend'),
+            popup360: document.getElementById('popup-360'),
+            popupDetail: document.getElementById('popup-detail'),
+            modeBtns: document.querySelectorAll('.btn-mode')
+        };
 
-            // Renderer
-            mainRenderer = new THREE.WebGLRenderer({ antialias: true });
-            mainRenderer.setSize(window.innerWidth, window.innerHeight);
-            mainRenderer.setPixelRatio(window.devicePixelRatio);
-            container.appendChild(mainRenderer.domElement);
+        let currentSceneState = 'MAIN'; // 'MAIN' atau '360'
+        let currentModel = null;
+        let animationId = null;
 
-            // Controls
-            mainControls = new OrbitControls(mainCamera, mainRenderer.domElement);
-            mainControls.enableDamping = true;
-            mainControls.dampingFactor = 0.05;
+        // Navigasi Halaman
+        document.getElementById('btn-start').addEventListener('click', () => {
+            DOM.pageInfo.classList.remove('active');
+            DOM.page3d.classList.add('active');
+            initEngine();
+        });
 
-            // Lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            mainScene.add(ambientLight);
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(50, 100, 50);
-            mainScene.add(directionalLight);
+        document.getElementById('btn-back').addEventListener('click', () => {
+            DOM.page3d.classList.remove('active');
+            DOM.pageInfo.classList.add('active');
+            // Matikan render loop jika diperlukan untuk menghemat daya
+        });
 
-            // Add Hotspots Group to Scene
-            mainScene.add(mainHotspotsGroup);
-            createMainHotspots();
+        // Event Ganti Mode (Satelit, Geologi, Morfometri)
+        DOM.modeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if(currentSceneState !== 'MAIN') return;
+                
+                DOM.modeBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                const mode = e.target.dataset.mode;
+                
+                // Toggle Legend khusus geologi
+                if (mode === 'geology') DOM.legend.classList.remove('hidden');
+                else DOM.legend.classList.add('hidden');
 
-            // Event Listeners
-            window.addEventListener('resize', onWindowResizeMain);
-            mainRenderer.domElement.addEventListener('pointerdown', onMainPointerDown);
-
-            // Setup Mode Buttons
-            document.querySelectorAll('.btn-mode').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    const mode = e.target.dataset.mode;
-                    
-                    // Toggle Legend
-                    if (mode === 'geology') legend.classList.remove('hidden');
-                    else legend.classList.add('hidden');
-
-                    loadModel(models[mode]);
-                });
+                loadModel(MODELS[mode]);
             });
+        });
 
-            isMainSceneInitialized = true;
-            loadModel(models.satellite); // Load default
-            startMainAnimation();
+        // ----------------------------------------------------
+        // 3. THREE.JS CORE ENGINE (1 Renderer, 2 Scenes)
+        // ----------------------------------------------------
+        let renderer, raycaster, mouse;
+        
+        // Main Scene Objects
+        let mainScene, mainCamera, mainControls;
+        let mainHotspotsGroup;
+        
+        // 360 Scene Objects
+        let scene360, camera360, controls360;
+        let sphere360, innerHotspotsGroup;
+
+        let isEngineInitialized = false;
+
+        function initEngine() {
+            if (isEngineInitialized) return;
+
+            // Renderer Setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimasi performa
+            DOM.container3d.appendChild(renderer.domElement);
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Setup Dua Scene
+            initMainScene();
+            init360Scene();
+
+            window.addEventListener('resize', onWindowResize);
+            renderer.domElement.addEventListener('pointerdown', onPointerDown);
+
+            isEngineInitialized = true;
+            
+            // Mulai render loop & load model awal
+            animate();
+            loadModel(MODELS.satellite);
         }
 
-        // --- FUNGSI LOAD & CLEANUP MODEL ---
-        function loadModel(url) {
-            loadingScreen.classList.remove('hidden');
+        // --- INISIALISASI MAIN SCENE ---
+        function initMainScene() {
+            mainScene = new THREE.Scene();
             
-            // Cleanup model sebelumnya mencegah memory leak
+            mainCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
+            mainCamera.position.set(0, 80, 120);
+
+            mainControls = new OrbitControls(mainCamera, renderer.domElement);
+            mainControls.enableDamping = true;
+            mainControls.dampingFactor = 0.05;
+            mainControls.maxPolarAngle = Math.PI / 2 - 0.05; // Jangan sampai tembus bawah tanah
+
+            // Pencahayaan
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            mainScene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(100, 200, 50);
+            mainScene.add(dirLight);
+
+            // Group untuk Hotspot Merah
+            mainHotspotsGroup = new THREE.Group();
+            mainScene.add(mainHotspotsGroup);
+            buildMainHotspots();
+        }
+
+        // --- INISIALISASI 360 SCENE ---
+        function init360Scene() {
+            scene360 = new THREE.Scene();
+            
+            camera360 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1500);
+            camera360.position.set(0, 0, 0.1); // Di dalam bola
+
+            controls360 = new OrbitControls(camera360, renderer.domElement);
+            controls360.enableDamping = true;
+            controls360.dampingFactor = 0.05;
+            controls360.enableZoom = false; // Fix posisi di tengah
+            controls360.enablePan = false;
+            controls360.rotateSpeed = -0.5; // Balik arah drag
+
+            // Bola 360 Terbalik
+            const geom = new THREE.SphereGeometry(500, 60, 40);
+            geom.scale(-1, 1, 1); // Balik normal
+            const mat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+            sphere360 = new THREE.Mesh(geom, mat);
+            scene360.add(sphere360);
+
+            // Group untuk Hotspot Inner (Kuning)
+            innerHotspotsGroup = new THREE.Group();
+            scene360.add(innerHotspotsGroup);
+        }
+
+        // ----------------------------------------------------
+        // 4. SISTEM LOAD & CLEANUP MODEL
+        // ----------------------------------------------------
+        function loadModel(url) {
+            DOM.loader.classList.remove('hidden');
+
+            // Cleanup memory sebelum load baru
             if (currentModel) {
                 mainScene.remove(currentModel);
-                currentModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.geometry.dispose();
-                        if (child.material.isMaterial) disposeMaterial(child.material);
-                        else if (Array.isArray(child.material)) child.material.forEach(disposeMaterial);
-                    }
-                });
+                disposeHierarchy(currentModel);
                 currentModel = null;
             }
 
             const loader = new GLTFLoader();
-            loader.load(url, 
+            loader.load(
+                url,
                 (gltf) => {
                     currentModel = gltf.scene;
-                    mainScene.add(currentModel);
-                    loadingScreen.classList.add('hidden');
-                }, 
-                undefined, 
-                (error) => {
-                    console.error('Gagal memuat GLB:', error);
-                    loadingScreen.innerHTML = "Gagal memuat model. Pastikan file " + url + " tersedia.";
-                    setTimeout(() => loadingScreen.classList.add('hidden'), 3000);
                     
-                    // FALLBACK: Menampilkan box jika file GLB tidak ada (Untuk testing UI)
-                    const geom = new THREE.BoxGeometry(30, 10, 30);
-                    const mat = new THREE.MeshStandardMaterial({color: 0x888888});
+                    // Tengahkan model (opsional jika model tidak center)
+                    const box = new THREE.Box3().setFromObject(currentModel);
+                    const center = box.getCenter(new THREE.Vector3());
+                    currentModel.position.x += (currentModel.position.x - center.x);
+                    currentModel.position.y += (currentModel.position.y - center.y);
+                    currentModel.position.z += (currentModel.position.z - center.z);
+                    
+                    mainScene.add(currentModel);
+                    DOM.loader.classList.add('hidden');
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading model:', error);
+                    document.getElementById('loader-text').innerText = "Gagal memuat: " + url;
+                    setTimeout(() => DOM.loader.classList.add('hidden'), 3000);
+                    
+                    // Fallback visual agar layar tidak kosong saat testing tanpa file
+                    const geom = new THREE.BoxGeometry(50, 10, 50);
+                    const mat = new THREE.MeshStandardMaterial({color: 0x555555, wireframe: true});
                     currentModel = new THREE.Mesh(geom, mat);
                     mainScene.add(currentModel);
                 }
             );
         }
 
-        function disposeMaterial(material) {
-            material.dispose();
-            if (material.map) material.map.dispose();
-            if (material.lightMap) material.lightMap.dispose();
-            if (material.bumpMap) material.bumpMap.dispose();
-            if (material.normalMap) material.normalMap.dispose();
-            if (material.specularMap) material.specularMap.dispose();
-            if (material.envMap) material.envMap.dispose();
-        }
-
-        // --- HOTSPOT UTAMA (TITIK MERAH DI MODEL 3D) ---
-        function createMainHotspots() {
-            const geometry = new THREE.SphereGeometry(0.05, 32, 32);
-            const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
-            hotspotsData.forEach(data => {
-                const sphere = new THREE.Mesh(geometry, material);
-                sphere.position.copy(data.position);
-                sphere.userData = data; // Simpan data untuk dipanggil saat klik
-                mainHotspotsGroup.add(sphere);
+        function disposeHierarchy(node) {
+            node.traverse((child) => {
+                if (child.isMesh) {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (Array.isArray(child.material)) child.material.forEach(m => disposeMaterial(m));
+                        else disposeMaterial(child.material);
+                    }
+                }
             });
         }
 
-        function onMainPointerDown(event) {
-            // Hitung kordinat mouse
-            const rect = mainRenderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-            mainRaycaster.setFromCamera(mouse, mainCamera);
-            const intersects = mainRaycaster.intersectObjects(mainHotspotsGroup.children);
-
-            if (intersects.length > 0) {
-                const hotspotData = intersects[0].object.userData;
-                open360Viewer(hotspotData);
-            }
+        function disposeMaterial(mat) {
+            mat.dispose();
+            if (mat.map) mat.map.dispose();
+            if (mat.normalMap) mat.normalMap.dispose();
+            // ...dispose tekstur lain jika ada
         }
 
-        // --- RENDER LOOP UTAMA ---
-        function startMainAnimation() {
-            if (!mainAnimationId) animateMain();
-        }
-        function stopMainAnimation() {
-            if (mainAnimationId) {
-                cancelAnimationFrame(mainAnimationId);
-                mainAnimationId = null;
-            }
-        }
-        function animateMain() {
-            mainAnimationId = requestAnimationFrame(animateMain);
-            mainControls.update();
-            mainRenderer.render(mainScene, mainCamera);
-        }
-        function onWindowResizeMain() {
-            if (!mainCamera) return;
-            mainCamera.aspect = window.innerWidth / window.innerHeight;
-            mainCamera.updateProjectionMatrix();
-            mainRenderer.setSize(window.innerWidth, window.innerHeight);
-        }
+        // ----------------------------------------------------
+        // 5. SISTEM HOTSPOT UTAMA (RAYCASTING)
+        // ----------------------------------------------------
+        function buildMainHotspots() {
+            const geom = new THREE.SphereGeometry(2, 32, 32);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xff3333 });
 
+            HOTSPOTS_DATA.forEach(data => {
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.copy(data.position);
+                mesh.userData = data; // Payload
+                
+                // Tambah outline/cincin biar cantik
+                const ringGeom = new THREE.RingGeometry(2.5, 3.5, 32);
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
+                const ring = new THREE.Mesh(ringGeom, ringMat);
+                ring.rotation.x = Math.PI / 2;
+                mesh.add(ring);
 
-        // =====================================================================
-        // --- SISTEM POPUP & VIEWER 360 DERAJAT ---
-        // =====================================================================
-
-        const popup360 = document.getElementById('popup-360');
-        const popupDetail = document.getElementById('popup-detail');
-        let scene360, camera360, renderer360, controls360;
-        let anim360Id = null;
-        let is360Initialized = false;
-        let hotspots360Group = new THREE.Group();
-        const raycaster360 = new THREE.Raycaster();
-        let sphere360Mesh = null;
-
-        document.getElementById('btn-close-360').addEventListener('click', () => {
-            popup360.classList.add('hidden');
-            stop360Animation();
-            startMainAnimation(); // Lanjut render main scene
-            
-            // Hapus gambar dari memory
-            if (sphere360Mesh && sphere360Mesh.material.map) {
-                sphere360Mesh.material.map.dispose();
-            }
-        });
-
-        document.getElementById('btn-close-detail').addEventListener('click', () => {
-            popupDetail.classList.add('hidden');
-        });
-
-        function init360Scene() {
-            if (is360Initialized) return;
-            
-            const container = document.getElementById('canvas-360');
-            scene360 = new THREE.Scene();
-            
-            camera360 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1100);
-            camera360.position.set(0, 0, 0.1); // Camera di dalam bola
-
-            renderer360 = new THREE.WebGLRenderer({ antialias: true });
-            renderer360.setSize(window.innerWidth, window.innerHeight);
-            container.appendChild(renderer360.domElement);
-
-            controls360 = new OrbitControls(camera360, renderer360.domElement);
-            controls360.enableZoom = false; // Disable zoom untuk feel 360 murni
-            controls360.enablePan = false;
-            controls360.rotateSpeed = -0.5; // Balik arah rotasi karena kamera di dalam
-
-            // Buat bola 360 (Inverted)
-            const geometry = new THREE.SphereGeometry(500, 60, 40);
-            geometry.scale(-1, 1, 1); // Membalik face normal agar tekstur tampil di dalam
-            const material = new THREE.MeshBasicMaterial({ color: 0x555555 }); // Placeholder
-            sphere360Mesh = new THREE.Mesh(geometry, material);
-            scene360.add(sphere360Mesh);
-
-            scene360.add(hotspots360Group);
-
-            window.addEventListener('resize', onWindowResize360);
-            renderer360.domElement.addEventListener('pointerdown', on360PointerDown);
-
-            is360Initialized = true;
-        }
-
-        function open360Viewer(data) {
-            stopMainAnimation(); // Hemat memori, hentikan render scene utama
-            init360Scene();
-            
-            document.getElementById('title-360').innerText = data.title;
-            document.getElementById('desc-360').innerText = data.desc;
-
-            // Load Tekstur 360
-            const textureLoader = new THREE.TextureLoader();
-            textureLoader.load(data.img360, (texture) => {
-                sphere360Mesh.material.map = texture;
-                sphere360Mesh.material.color.setHex(0xffffff);
-                sphere360Mesh.material.needsUpdate = true;
-            }, undefined, () => {
-                console.log("Gambar 360 tidak ditemukan (gunakan fallback abu-abu)");
+                mainHotspotsGroup.add(mesh);
             });
-
-            // Setup Hotspots di dalam 360
-            hotspots360Group.clear(); // Bersihkan hotspot sebelumnya
-            const hpGeom = new THREE.SphereGeometry(15, 32, 32);
-            const hpMat = new THREE.MeshBasicMaterial({ color: 0xffd700 }); // Kuning
-            
-            data.geoHotspots.forEach(geo => {
-                const mesh = new THREE.Mesh(hpGeom, hpMat);
-                // Konversi Spherical ke Cartesian
-                mesh.position.setFromSphericalCoords(
-                    geo.spherical.radius,
-                    geo.spherical.phi,
-                    geo.spherical.theta
-                );
-                mesh.userData = geo;
-                hotspots360Group.add(mesh);
-            });
-
-            popup360.classList.remove('hidden');
-            animate360();
         }
 
-        function on360PointerDown(event) {
-            // Hindari memicu raycaster jika klik UI
-            if(event.target !== renderer360.domElement) return;
+        function onPointerDown(event) {
+            // Cegah interaksi jika klik di atas elemen UI
+            if(event.target !== renderer.domElement) return;
 
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-            raycaster360.setFromCamera(mouse, camera360);
-            const intersects = raycaster360.intersectObjects(hotspots360Group.children);
-
-            if (intersects.length > 0) {
-                const detail = intersects[0].object.userData;
-                showDetailPopup(detail);
+            if (currentSceneState === 'MAIN') {
+                raycaster.setFromCamera(mouse, mainCamera);
+                const intersects = raycaster.intersectObjects(mainHotspotsGroup.children, false); // false = jangan hit anak (ring)
+                if (intersects.length > 0) open360Viewer(intersects[0].object.userData);
+            } 
+            else if (currentSceneState === '360') {
+                raycaster.setFromCamera(mouse, camera360);
+                const intersects = raycaster.intersectObjects(innerHotspotsGroup.children);
+                if (intersects.length > 0) openDetailPopup(intersects[0].object.userData);
             }
         }
 
-        function showDetailPopup(detail) {
-            document.getElementById('detail-img').src = detail.hiResImg;
-            document.getElementById('detail-title').innerText = detail.title;
-            document.getElementById('detail-desc').innerText = detail.desc;
-            popupDetail.classList.remove('hidden');
+        // ----------------------------------------------------
+        // 6. SISTEM VIEWER 360 & POPUP DETAIL
+        // ----------------------------------------------------
+        function open360Viewer(data) {
+            // Update UI
+            document.getElementById('title-360').innerText = data.title;
+            document.getElementById('desc-360').innerText = data.desc;
+            DOM.popup360.classList.add('active');
+
+            // Tampilkan Loading
+            DOM.loader.classList.remove('hidden');
+            document.getElementById('loader-text').innerText = "Memuat 360...";
+
+            // Load Tekstur 360
+            const texLoader = new THREE.TextureLoader();
+            texLoader.load(data.img360, (texture) => {
+                if(sphere360.material.map) sphere360.material.map.dispose();
+                sphere360.material.map = texture;
+                sphere360.material.needsUpdate = true;
+                DOM.loader.classList.add('hidden');
+            }, undefined, () => {
+                DOM.loader.classList.add('hidden');
+                console.log("Gambar 360 gagal dimuat. Menggunakan fallback.");
+            });
+
+            // Build Inner Hotspots (Titik Kuning)
+            innerHotspotsGroup.clear();
+            const geom = new THREE.SphereGeometry(15, 32, 32);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+
+            data.innerHotspots.forEach(hp => {
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.setFromSphericalCoords(hp.spherical.radius, hp.spherical.phi, hp.spherical.theta);
+                mesh.userData = hp;
+                innerHotspotsGroup.add(mesh);
+            });
+
+            // Switch State
+            currentSceneState = '360';
         }
 
-        function animate360() {
-            anim360Id = requestAnimationFrame(animate360);
-            controls360.update();
-            renderer360.render(scene360, camera360);
+        document.getElementById('btn-close-360').addEventListener('click', () => {
+            DOM.popup360.classList.remove('active');
+            currentSceneState = 'MAIN';
+            // Bebaskan memory tekstur 360
+            if(sphere360.material.map) {
+                sphere360.material.map.dispose();
+                sphere360.material.map = null;
+            }
+        });
+
+        function openDetailPopup(detailData) {
+            document.getElementById('detail-img').src = detailData.hiResImg;
+            document.getElementById('detail-title').innerText = detailData.title;
+            document.getElementById('detail-desc').innerText = detailData.desc;
+            DOM.popupDetail.classList.add('active');
         }
 
-        function stop360Animation() {
-            if (anim360Id) {
-                cancelAnimationFrame(anim360Id);
-                anim360Id = null;
+        document.getElementById('btn-close-detail').addEventListener('click', () => {
+            DOM.popupDetail.classList.remove('active');
+        });
+
+        // ----------------------------------------------------
+        // 7. RENDER LOOP & RESIZE
+        // ----------------------------------------------------
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+
+            if (currentSceneState === 'MAIN') {
+                mainControls.update();
+                
+                // Animasi berdenyut pada cincin hotspot utama
+                const time = Date.now() * 0.003;
+                mainHotspotsGroup.children.forEach(hp => {
+                    const ring = hp.children[0];
+                    if(ring) ring.scale.setScalar(1 + Math.sin(time) * 0.2);
+                });
+
+                renderer.render(mainScene, mainCamera);
+            } 
+            else if (currentSceneState === '360') {
+                controls360.update();
+                renderer.render(scene360, camera360);
             }
         }
 
-        function onWindowResize360() {
-            if (!camera360) return;
-            camera360.aspect = window.innerWidth / window.innerHeight;
+        function onWindowResize() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            renderer.setSize(w, h);
+            
+            mainCamera.aspect = w / h;
+            mainCamera.updateProjectionMatrix();
+            
+            camera360.aspect = w / h;
             camera360.updateProjectionMatrix();
-            renderer360.setSize(window.innerWidth, window.innerHeight);
         }
 
     </script>
