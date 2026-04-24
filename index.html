@@ -148,7 +148,7 @@
         const hotspotsData = [
             {
                 id: 1,
-                position: new THREE.Vector3(0, 10, 0), // Sesuaikan koordinat Y dengan tinggi model Anda
+                position: new THREE.Vector3(0, 1, 0), // Sesuaikan koordinat Y dengan tinggi model Anda
                 title: "Puncak Gunung Betung",
                 desc: "Pemandangan indah dari titik tertinggi Gunung Betung dengan vegetasi lebat.",
                 img360: "panorama_puncak.jpg", // Ganti dengan URL gambar 360 equirectangular Anda
@@ -164,7 +164,7 @@
             },
             {
                 id: 2,
-                position: new THREE.Vector3(15, 5, -10),
+                position: new THREE.Vector3(5, -5, -10),
                 title: "Lereng Curam",
                 desc: "Area lereng dengan tingkat kemiringan tinggi, menunjukkan struktur patahan masa lampau.",
                 img360: "panorama_lereng.jpg",
@@ -301,7 +301,7 @@
 
         // --- HOTSPOT UTAMA (TITIK MERAH DI MODEL 3D) ---
         function createMainHotspots() {
-            const geometry = new THREE.SphereGeometry(1.5, 32, 32);
+            const geometry = new THREE.SphereGeometry(0.05, 32, 32);
             const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
             hotspotsData.forEach(data => {
