@@ -453,7 +453,7 @@
             controls360.rotateSpeed = -0.5; // Balik arah drag
 
             // Bola 360 Terbalik
-            const geom = new THREE.SphereGeometry(500, 60, 40);
+            const geom = new THREE.SphereGeometry(2, 32, 32);
             geom.scale(-1, 1, 1); // Balik normal
             const mat = new THREE.MeshBasicMaterial({ color: 0x111111 });
             sphere360 = new THREE.Mesh(geom, mat);
