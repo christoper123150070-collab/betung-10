@@ -292,12 +292,18 @@
         // Dummy Data Hotspot (Ganti koordinat & URL aset sesuai milik Anda)
         const HOTSPOTS_DATA = [
             {
-                id: 'hp1',
-                position: new THREE.Vector3(0, 1, 5), // Sesuaikan dgn tinggi model Anda
-                title: "Puncak Gunung Betung",
-                desc: "Pemandangan dari area puncak memperlihatkan vegetasi rapat dan morfologi sisa kawah kuno.",
-                img360: "foto_puncak_saya.jpg", // Placeholder 360
-                innerHotspots: [
+              const HOTSPOTS_DATA = [
+    {
+        id: 'hp1',
+        // Ganti angka 15 (ketinggian) jadi 1 biar bolanya turun
+        position: new THREE.Vector3(0, 1, 5), 
+        title: "Puncak Gunung Betung",
+        desc: "Pemandangan dari area puncak memperlihatkan vegetasi rapat...",
+        
+        // PASTIKAN NAMA FILENYA PERSIS BEGINI:
+        img360: "foto_puncak_saya.jpg", 
+        
+        innerHotspots: [
                     {
                         spherical: { radius: 400, phi: Math.PI / 2.2, theta: Math.PI / 4 },
                         title: "Singkapan Andesit Porfiritik",
