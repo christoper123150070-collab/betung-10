@@ -3,673 +3,1080 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eksplorasi Interaktif Gunung Betung</title>
+    <title>Gunung Betung | Eksplorasi Geologi & 3D Interactive</title>
+    <meta name="description" content="Proyek Portofolio Geologi Gunung Betung. Eksplorasi sejarah, struktur geologi, pariwisata, dan model 3D interaktif.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
 
     <style>
-        /* =========================================
+        /* ==========================================================================
            CSS VARIABLES & RESET
-        ========================================= */
+           ========================================================================== */
         :root {
-            --primary: #2b5329; /* Hijau natural */
-            --primary-hover: #1f3d1e;
-            --secondary: #8d6e63; /* Coklat tanah */
-            --bg-light: #f9faf8;
-            --text-dark: #2c3e50;
-            --text-light: #ecf0f1;
-            --font-main: 'Inter', sans-serif;
-            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --bg-color: #050505;
+            --text-main: #f0f0f0;
+            --text-muted: #a0a0a0;
+            --accent-orange: #ff6a00;
+            --accent-green: #2c5e3b;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --font-ui: 'Inter', sans-serif;
+            --font-heading: 'Playfair Display', serif;
+            --font-modern: 'Montserrat', sans-serif;
+            --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: var(--font-main); background-color: var(--bg-light); color: var(--text-dark); overflow-x: hidden; }
-        
-        button { font-family: inherit; cursor: pointer; border: none; outline: none; transition: var(--transition-smooth); }
-        .hidden { display: none !important; opacity: 0; pointer-events: none; }
-
-        /* =========================================
-           SPA LAYOUT & ANIMATION
-        ========================================= */
-        .page { width: 100vw; min-height: 100vh; position: absolute; top: 0; left: 0; transition: opacity 0.5s ease-in-out; }
-        .page:not(.active) { opacity: 0; z-index: -1; pointer-events: none; }
-        .page.active { opacity: 1; z-index: 10; pointer-events: auto; }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Custom Cursor */
         }
 
-        /* =========================================
-           HALAMAN 1: INFORMASI GUNUNG BETUNG
-        ========================================= */
-        #page-info { background: var(--bg-light); overflow-y: auto; display: flex; flex-direction: column; }
-        
-        .hero {
-            height: 70vh; background: linear-gradient(rgba(43,83,41,0.8), rgba(43,83,41,0.6)), url('https://images.unsplash.com/photo-1542224566-6e85f2e6772f?auto=format&fit=crop&w=1920&q=80') center/cover;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; padding: 2rem;
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
-        .hero h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: fadeInUp 0.8s ease forwards; }
-        .hero p { font-size: 1.2rem; max-width: 600px; margin-bottom: 2rem; animation: fadeInUp 1s ease forwards; opacity: 0; }
-        .btn-explore { padding: 15px 35px; font-size: 1.1rem; font-weight: 600; border-radius: 50px; background: white; color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.15); animation: fadeInUp 1.2s ease forwards; opacity: 0; }
-        .btn-explore:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(0,0,0,0.2); background: var(--bg-light); }
 
-        .content-container { max-width: 1200px; margin: -50px auto 40px; padding: 0 20px; position: relative; z-index: 5; }
+        /* ==========================================================================
+           GLOBAL UTILITIES & EFFECTS
+           ========================================================================== */
+        ::-webkit-scrollbar { display: none; } /* Hide default scrollbar */
         
-        .grid-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px; }
-        
-        .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: var(--transition-smooth); border-top: 4px solid var(--primary); }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-        .card h2 { color: var(--primary); font-size: 1.5rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .card p, .card ul { line-height: 1.7; color: #555; }
-        .card ul { padding-left: 20px; margin-top: 10px; }
-        .card li { margin-bottom: 8px; }
+        .noise-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
 
-        .list-section { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
-        .list-item { background: #f4f6f4; padding: 15px; border-radius: 8px; border-left: 4px solid var(--secondary); }
-        .list-item h4 { color: var(--secondary); margin-bottom: 5px; }
+        #custom-cursor {
+            position: fixed; top: 0; left: 0; width: 10px; height: 10px;
+            background: var(--text-main); border-radius: 50%;
+            pointer-events: none; z-index: 10000; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+        #custom-cursor-follower {
+            position: fixed; top: 0; left: 0; width: 40px; height: 40px;
+            border: 1px solid var(--glass-border); border-radius: 50%;
+            pointer-events: none; z-index: 9999; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-color 0.3s, top 0.15s ease-out, left 0.15s ease-out;
+        }
+        .cursor-hover { width: 60px !important; height: 60px !important; border-color: var(--accent-orange) !important; background: rgba(255, 106, 0, 0.1); backdrop-filter: blur(2px); }
+        .cursor-dot-hover { background: transparent !important; }
 
-        /* =========================================
-           HALAMAN 2: 3D VIEWER
-        ========================================= */
-        #page-3d { background: #1a1a1a; overflow: hidden; }
-        #webgl-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
-        
-        /* UI Overlays */
-        .ui-overlay { position: absolute; z-index: 20; pointer-events: none; }
-        .ui-overlay > * { pointer-events: auto; }
-        
-        /* Header Bar */
-        .top-bar { top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .btn-back { background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .btn-back:hover { background: white; transform: translateX(-3px); }
-        
-        /* Mode Controls */
-        .mode-panel { background: rgba(255,255,255,0.95); padding: 10px; border-radius: 12px; display: flex; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); backdrop-filter: blur(5px); }
-        .btn-mode { padding: 10px 20px; border-radius: 8px; font-weight: 600; background: transparent; color: #555; transition: var(--transition-smooth); }
-        .btn-mode.active { background: var(--primary); color: white; box-shadow: 0 2px 10px rgba(43,83,41,0.4); }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
 
-        /* Loader */
-        #loader { top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px 40px; border-radius: 30px; font-weight: 600; display: flex; align-items: center; gap: 15px; z-index: 50; transition: opacity 0.3s; }
-        .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        /* Loading Screen */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--bg-color); z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1s ease-in-out;
+        }
+        .loader-text {
+            font-family: var(--font-heading); font-size: 2rem; letter-spacing: 4px;
+            background: linear-gradient(90deg, #fff, #555, #fff); background-size: 200% auto;
+            color: transparent; -webkit-background-clip: text; animation: shine 2s linear infinite;
+        }
+        .loader-bar-container { width: 200px; height: 2px; background: #222; margin-top: 20px; overflow: hidden; }
+        .loader-bar { width: 0%; height: 100%; background: var(--accent-orange); transition: width 0.2s; }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* ==========================================================================
+           NAVIGATION
+           ========================================================================== */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 25px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; transition: var(--transition-smooth);
+        }
+        nav.scrolled { padding: 15px 50px; background: rgba(5, 5, 5, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid var(--glass-border); }
+        .logo { font-family: var(--font-modern); font-size: 1.2rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; text-decoration: none; }
+        .logo span { color: var(--accent-orange); }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links li a {
+            color: var(--text-muted); text-decoration: none; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;
+            transition: color 0.3s; position: relative;
+        }
+        .nav-links li a:hover, .nav-links li a.active { color: #fff; }
+        .nav-links li a::after {
+            content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 1px;
+            background: var(--accent-orange); transition: width 0.3s ease;
+        }
+        .nav-links li a:hover::after, .nav-links li a.active::after { width: 100%; }
+        
+        .btn-3d {
+            background: transparent; border: 1px solid var(--accent-orange); color: var(--accent-orange);
+            padding: 8px 20px; border-radius: 30px; font-family: var(--font-ui); font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 1px; transition: var(--transition-smooth);
+        }
+        .btn-3d:hover { background: var(--accent-orange); color: #000; box-shadow: 0 0 20px rgba(255, 106, 0, 0.4); }
+
+        /* ==========================================================================
+           PAGE 1: LANDING PAGE
+           ========================================================================== */
+        #landing-page { display: block; opacity: 1; transition: opacity 1s; }
+        
+        /* Hero Section */
+        #hero {
+            position: relative; height: 100vh; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; text-align: center;
+        }
+        .hero-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 120%; /* 120% for parallax */
+            background: url('https://images.unsplash.com/photo-1616854747714-386d4e21a44e?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+            z-index: -2;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(5,5,5,0.3) 0%, rgba(5,5,5,0.8) 70%, rgba(5,5,5,1) 100%);
+            z-index: -1;
+        }
+        canvas#hero-particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        
+        .hero-content { display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 1; margin-top: 50px; }
+        .hero-title {
+            font-family: var(--font-heading); font-size: 7rem; font-weight: 400; line-height: 1;
+            background: linear-gradient(to bottom, #fff, #888); -webkit-background-clip: text; color: transparent;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .hero-subtitle { font-family: var(--font-ui); font-size: 1.2rem; font-weight: 300; letter-spacing: 4px; color: var(--text-muted); text-transform: uppercase; }
+        .hero-buttons { display: flex; gap: 20px; margin-top: 30px; }
+        .btn-primary, .btn-secondary {
+            padding: 15px 35px; border-radius: 50px; font-family: var(--font-modern); font-size: 0.9rem;
+            letter-spacing: 2px; text-transform: uppercase; transition: var(--transition-smooth);
+            display: inline-flex; align-items: center; gap: 10px; overflow: hidden; position: relative;
+        }
+        .btn-primary { background: #fff; color: #000; border: none; }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
+        .btn-secondary { background: var(--glass-bg); color: #fff; border: 1px solid var(--glass-border); backdrop-filter: blur(5px); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); border-color: rgba(255,255,255,0.3); }
+
+        .scroll-indicator {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0.6;
+        }
+        .mouse { width: 26px; height: 40px; border: 2px solid #fff; border-radius: 15px; position: relative; }
+        .wheel { width: 4px; height: 8px; background: #fff; border-radius: 2px; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); animation: scroll 1.5s infinite; }
+        @keyframes scroll { 0% { top: 8px; opacity: 1; } 100% { top: 20px; opacity: 0; } }
+
+        /* General Section Styles */
+        section { padding: 120px 10vw; position: relative; }
+        .section-header { text-align: center; margin-bottom: 80px; }
+        .section-subtitle { font-family: var(--font-modern); color: var(--accent-orange); font-size: 0.9rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 15px; display: block; }
+        .section-title { font-family: var(--font-heading); font-size: 3.5rem; font-weight: 400; }
+        .separator { width: 60px; height: 2px; background: var(--accent-orange); margin: 20px auto; border-radius: 2px; }
+
+        /* Section 1: Keterbentukan */
+        #pembentukan { display: flex; align-items: center; justify-content: space-between; gap: 80px; }
+        .text-block { flex: 1; }
+        .text-block p { font-size: 1.1rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 25px; }
+        .image-block { flex: 1; position: relative; }
+        .img-wrapper { border-radius: 20px; overflow: hidden; position: relative; }
+        .img-wrapper img { width: 100%; display: block; transform: scale(1.1); transition: transform 0.5s; }
+        .img-wrapper::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); pointer-events: none; }
+        .floating-card-info {
+            position: absolute; bottom: -30px; left: -30px; padding: 25px;
+            width: 250px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 2;
+        }
+        .floating-card-info h4 { color: var(--accent-orange); margin-bottom: 10px; font-family: var(--font-modern); }
+        .floating-card-info p { font-size: 0.85rem; color: #ccc; }
+
+        /* Section 2: Geologi Grid */
+        #geologi { background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0,50 Q25,0 50,50 T100,50" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/></svg>') top center; }
+        .geology-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .geo-card {
+            padding: 40px 30px; position: relative; overflow: hidden; transition: var(--transition-smooth);
+            border-top: 1px solid rgba(255,255,255,0.1); border-left: 1px solid rgba(255,255,255,0.05);
+        }
+        .geo-card::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-orange), transparent); transition: left 0.5s;
+        }
+        .geo-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.3); background: rgba(255,255,255,0.05); }
+        .geo-card:hover::before { left: 100%; }
+        .geo-icon { font-size: 2.5rem; color: var(--accent-orange); margin-bottom: 20px; }
+        .geo-card h3 { font-family: var(--font-modern); font-size: 1.3rem; margin-bottom: 15px; font-weight: 600; }
+        .geo-card p { font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); }
+
+        /* Section 3: Pariwisata Alternating */
+        .tour-row { display: flex; align-items: center; justify-content: space-between; gap: 80px; margin-bottom: 120px; }
+        .tour-row:nth-child(even) { flex-direction: row-reverse; }
+        .tour-img { flex: 1; border-radius: 20px; overflow: hidden; height: 500px; position: relative; }
+        .tour-img img { width: 100%; height: 100%; object-fit: cover; }
+        .tour-content { flex: 1; }
+        .tour-content h3 { font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 20px; }
+        .tour-content p { color: var(--text-muted); line-height: 1.8; margin-bottom: 30px; }
+        .tour-stats { display: flex; gap: 30px; }
+        .stat-item h4 { font-family: var(--font-modern); font-size: 1.5rem; color: #fff; }
+        .stat-item span { font-size: 0.8rem; color: var(--accent-orange); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Gallery Masonry */
+        .masonry-gallery { columns: 3 300px; gap: 20px; padding: 20px 0; }
+        .gallery-item { break-inside: avoid; margin-bottom: 20px; position: relative; border-radius: 12px; overflow: hidden; }
+        .gallery-item img { width: 100%; display: block; transition: var(--transition-smooth); filter: grayscale(80%); }
+        .gallery-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            display: flex; align-items: flex-end; padding: 20px; opacity: 0; transition: var(--transition-smooth);
+        }
+        .gallery-item:hover img { filter: grayscale(0%); transform: scale(1.05); }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .gallery-overlay span { font-family: var(--font-modern); font-weight: 600; font-size: 1.1rem; }
+
+        /* Team Section */
+        #tim { background: radial-gradient(circle at top, rgba(44,94,59,0.15) 0%, var(--bg-color) 70%); }
+        .team-grid { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+        .team-card { width: 300px; padding: 40px 20px; text-align: center; border-radius: 20px; transform-style: preserve-3d; }
+        .team-img-wrap { width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 50%; padding: 5px; background: linear-gradient(45deg, var(--accent-orange), #ff007f); }
+        .team-img-wrap img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--bg-color); }
+        .team-card h3 { font-family: var(--font-modern); font-size: 1.2rem; margin-bottom: 5px; transform: translateZ(30px); }
+        .team-card p { font-size: 0.9rem; color: var(--accent-orange); margin-bottom: 20px; transform: translateZ(20px); }
+        .social-btn { display: inline-block; padding: 10px 25px; border-radius: 30px; background: #fff; color: #000; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: 0.3s; transform: translateZ(40px); }
+        .social-btn i { margin-right: 8px; color: #e1306c; }
+        .social-btn:hover { background: #e1306c; color: #fff; }
+        .social-btn:hover i { color: #fff; }
+
+        /* Footer */
+        footer { padding: 80px 10vw 40px; background: #020202; position: relative; overflow: hidden; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-content { display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; }
+        .footer-quote { max-width: 500px; font-family: var(--font-heading); font-size: 1.5rem; color: #888; font-style: italic; }
+        .footer-social { display: flex; gap: 15px; }
+        .footer-social a { width: 45px; height: 45px; border-radius: 50%; background: var(--glass-bg); display: flex; justify-content: center; align-items: center; color: #fff; text-decoration: none; border: 1px solid var(--glass-border); transition: 0.3s; }
+        .footer-social a:hover { background: var(--accent-orange); color: #000; transform: translateY(-5px); }
+        .footer-bottom { text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 30px; color: #555; font-size: 0.9rem; }
+
+        /* ==========================================================================
+           PAGE 2: 3D INTERACTIVE VIEWER
+           ========================================================================== */
+        #viewer-3d-page {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 2000; display: none; opacity: 0; transition: opacity 1s;
+        }
+        #webgl-container { width: 100%; height: 100%; }
+
+        /* 3D UI Elements */
+        .viewer-header {
+            position: absolute; top: 30px; left: 40px; right: 40px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 10; pointer-events: none;
+        }
+        .viewer-header > * { pointer-events: auto; }
+        .back-btn { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-family: var(--font-modern); font-weight: 600; font-size: 0.9rem; text-transform: uppercase; transition: 0.3s; }
+        .back-btn i { font-size: 1.2rem; transition: transform 0.3s; }
+        .back-btn:hover { color: var(--accent-orange); }
+        .back-btn:hover i { transform: translateX(-5px); }
+
+        .model-switcher { display: flex; gap: 10px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 40px; backdrop-filter: blur(10px); border: 1px solid var(--glass-border); }
+        .switcher-btn { padding: 10px 25px; border: none; background: transparent; color: #aaa; border-radius: 30px; font-family: var(--font-ui); font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
+        .switcher-btn.active { background: #fff; color: #000; }
+        .switcher-btn:hover:not(.active) { color: #fff; }
+
+        .viewer-controls { position: absolute; bottom: 40px; right: 40px; display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+        .ctrl-btn { width: 45px; height: 45px; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); border-radius: 50%; color: #fff; backdrop-filter: blur(5px); transition: 0.3s; }
+        .ctrl-btn:hover { background: var(--accent-orange); color: #000; }
+
+        /* Legend Panel (Geology Mode) */
+        #legend-panel {
+            position: absolute; bottom: 40px; left: 40px; width: 300px;
+            padding: 20px; z-index: 10; display: none; opacity: 0; transform: translateY(20px); transition: var(--transition-smooth);
+        }
+        #legend-panel.show { display: block; opacity: 1; transform: translateY(0); }
+        .legend-title { font-family: var(--font-modern); font-size: 1rem; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .legend-item { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; font-size: 0.85rem; }
+        .color-box { width: 20px; height: 20px; border-radius: 4px; }
+
+        /* 3D Loading Progress */
+        #loading-3d { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 20; display: none; }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Legend */
-        #legend { bottom: 20px; left: 20px; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: opacity 0.3s, transform 0.3s; transform: translateY(0); }
-        #legend.hidden { transform: translateY(20px); opacity: 0; }
-        #legend h3 { margin-bottom: 12px; font-size: 1rem; border-bottom: 2px solid #eee; padding-bottom: 5px; }
-        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; color: #444; font-weight: 600; }
-        .color-box { width: 18px; height: 18px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); }
-
-        /* Tooltip & Instructions */
-        .instruction { bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; backdrop-filter: blur(4px); animation: pulse 2s infinite; pointer-events: none;}
-        @keyframes pulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
-
-        /* =========================================
-           POPUP 360 & DETAIL
-        ========================================= */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; transition: opacity 0.4s; }
-        .popup-overlay:not(.active) { opacity: 0; pointer-events: none; }
+        /* Popups (360 & Info) */
+        .popup-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            z-index: 100; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s;
+        }
+        .popup-overlay.active { display: flex; opacity: 1; }
+        .popup-content { width: 80%; height: 80%; position: relative; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; background: #111; border: 1px solid var(--glass-border); box-shadow: 0 30px 60px rgba(0,0,0,0.8); transform: scale(0.9); transition: transform 0.4s; }
+        .popup-overlay.active .popup-content { transform: scale(1); }
+        .popup-header { padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); background: #0a0a0a; }
+        .popup-title { font-family: var(--font-modern); font-size: 1.2rem; font-weight: 600; color: #fff; }
+        .close-btn { background: transparent; border: none; color: #888; font-size: 1.5rem; transition: 0.3s; }
+        .close-btn:hover { color: #ff3333; transform: rotate(90deg); }
         
-        #popup-360 { background: #000; }
-        .header-360 { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); display: flex; justify-content: space-between; align-items: flex-start; z-index: 101; pointer-events: none;}
-        .header-360 > * { pointer-events: auto; }
-        .title-360 { color: white; }
-        .title-360 h2 { font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .title-360 p { font-size: 0.9rem; max-width: 400px; color: #ddd; }
-        .btn-close { background: rgba(255,60,60,0.9); color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .btn-close:hover { background: #ff1a1a; transform: scale(1.1); }
+        #panorama-container { width: 100%; flex: 1; background: #000; }
 
-        #popup-detail { background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); z-index: 150;}
-        .detail-card { background: white; width: 90%; max-width: 800px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: translateY(20px); transition: transform 0.4s; position: relative;}
-        #popup-detail.active .detail-card { transform: translateY(0); }
-        .detail-img { width: 100%; height: 300px; object-fit: cover; background: #ddd; display: block; }
-        .detail-content { padding: 30px; }
-        .detail-content h2 { color: var(--primary); margin-bottom: 15px; font-size: 1.8rem;}
-        .detail-content p { line-height: 1.8; color: #444; font-size: 1rem; }
-        .btn-close-detail { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
-        .btn-close-detail:hover { background: #000; }
+        /* Info Tooltip for Markers */
+        #tooltip-3d { position: absolute; background: rgba(0,0,0,0.8); color: #fff; padding: 10px 15px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--accent-orange); pointer-events: none; display: none; z-index: 50; backdrop-filter: blur(5px); white-space: nowrap; transition: opacity 0.2s; }
 
-        /* Responsive */
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.2rem; }
-            .top-bar { flex-direction: column-reverse; gap: 15px; align-items: center; }
-            .header-360 { flex-direction: column-reverse; align-items: flex-end; gap: 10px; }
-            .title-360 { align-self: flex-start; }
-            .detail-img { height: 200px; }
-            .detail-content { padding: 20px; }
-            .instruction { width: 90%; text-align: center; font-size: 0.8rem; }
+            .hero-title { font-size: 4rem; }
+            section { padding: 80px 5vw; }
+            #pembentukan, .tour-row, .tour-row:nth-child(even) { flex-direction: column; }
+            .masonry-gallery { columns: 1; }
+            .nav-links { display: none; } /* Simple hiding for single file demo, normally needs a hamburger logic */
+            .viewer-header { flex-direction: column; gap: 20px; }
+            .popup-content { width: 95%; height: 90%; }
         }
     </style>
 </head>
 <body>
 
-    <div id="page-info" class="page active">
-        <div class="hero">
-            <h1>Gunung Betung</h1>
-            <p>Eksplorasi virtual lanskap vulkanik, morfometri, dan geologi di Provinsi Lampung.</p>
-            <button class="btn-explore" id="btn-start">Eksplorasi 3D Interaktif</button>
+    <div class="noise-bg"></div>
+    <div id="custom-cursor"></div>
+    <div id="custom-cursor-follower"></div>
+
+    <div id="loader">
+        <h1 class="loader-text">GUNUNG BETUNG</h1>
+        <div class="loader-bar-container">
+            <div class="loader-bar" id="loader-bar"></div>
         </div>
+    </div>
 
-        <div class="content-container">
-            <div class="grid-section">
-                <div class="card">
-                    <h2>🌋 Tentang Gunung Betung</h2>
-                    <p>Gunung Betung merupakan gunung api yang terletak di Provinsi Lampung dan termasuk dalam rangkaian Busur Sunda yang terbentuk akibat proses subduksi lempeng Indo-Australia ke bawah Eurasia.</p>
-                    <p style="margin-top: 10px;">Gunung ini memiliki ketinggian sekitar 1.240 meter di atas permukaan laut dan dikelilingi oleh hutan tropis yang masih relatif alami. Saat ini, Gunung Betung tidak memiliki catatan erupsi modern sehingga dikategorikan sebagai gunung api tua atau dorman.</p>
-                </div>
+    <div id="landing-page">
+        <nav id="navbar">
+            <a href="#" class="logo">Gunung<span>Betung</span></a>
+            <ul class="nav-links">
+                <li><a href="#hero" class="active">Beranda</a></li>
+                <li><a href="#pembentukan">Keterbentukan</a></li>
+                <li><a href="#geologi">Geologi</a></li>
+                <li><a href="#pariwisata">Pariwisata</a></li>
+                <li><a href="#galeri">Galeri</a></li>
+            </ul>
+            <button class="btn-3d" onclick="open3DViewer()">Lihat Model 3D</button>
+        </nav>
 
-                <div class="card">
-                    <h2>🌿 Potensi Pariwisata</h2>
-                    <p>Gunung Betung menawarkan pengalaman wisata alam yang memadukan keindahan lanskap dengan nilai edukasi geologi. Berada di kawasan Tahura Wan Abdul Rachman, area ini memiliki:</p>
-                    <ul>
-                        <li>Jalur trekking dengan tingkat kesulitan ringan hingga menengah</li>
-                        <li>Hutan hujan tropis yang masih terjaga</li>
-                        <li>Aliran sungai dan air terjun alami</li>
-                        <li>Panorama puncak dengan pemandangan Teluk Lampung</li>
-                    </ul>
+        <header id="hero">
+            <div class="hero-bg" data-speed="0.5"></div>
+            <div class="hero-overlay"></div>
+            <canvas id="hero-particles"></canvas>
+            
+            <div class="hero-content">
+                <p class="hero-subtitle gs-reveal">Eksplorasi Geologi dan Keindahan Alam</p>
+                <h1 class="hero-title gs-reveal">Gunung Betung</h1>
+                <div class="hero-buttons gs-reveal">
+                    <a href="#pembentukan" class="btn-primary">Eksplorasi <i class="fa-solid fa-arrow-down"></i></a>
+                    <button class="btn-secondary" onclick="open3DViewer()"><i class="fa-solid fa-cube"></i> Model 3D</button>
                 </div>
             </div>
 
-            <div class="grid-section">
-                <div class="card">
-                    <h2>🪨 Geologi Gunung Betung</h2>
-                    <p>Gunung Betung terbentuk dari aktivitas vulkanik yang berkaitan dengan sistem subduksi.</p>
-                    
-                    <div class="list-section">
-                        <div class="list-item">
-                            <h4>Litologi Utama</h4>
-                            <p>Andesit, Basalt, Breksi vulkanik, Tuf.</p>
-                        </div>
-                        <div class="list-item">
-                            <h4>Karakteristik</h4>
-                            <ul>
-                                <li>Tekstur porfiritik dengan fenokris plagioklas</li>
-                                <li>Struktur vesikular akibat gas dalam magma</li>
-                            </ul>
-                        </div>
-                        <div class="list-item">
-                            <h4>Alterasi</h4>
-                            <p>Kloritisasi, Serisitasi, Oksidasi (warna merah/coklat). Hal ini mengindikasikan adanya aktivitas fluida panas setelah pembentukan batuan.</p>
-                        </div>
+            <div class="scroll-indicator">
+                <div class="mouse"><div class="wheel"></div></div>
+                <span style="font-size: 0.7rem; letter-spacing: 2px;">SCROLL</span>
+            </div>
+        </header>
+
+        <section id="pembentukan">
+            <div class="text-block gs-text">
+                <span class="section-subtitle">01 — Sejarah Alam</span>
+                <h2 class="section-title">Keterbentukan<br>Gunung Betung</h2>
+                <div class="separator"></div>
+                <p>Gunung Betung terbentuk dari proses alam yang terjadi sangat lama di dalam bumi. Gunung ini masih terlihat jelas bentuknya seperti kerucut, menandakan bahwa jejak pembentukannya masih terjaga hingga sekarang.</p>
+                <p>Dari bentuk dan kondisi sekitarnya, Gunung Betung kemungkinan tidak berdiri sendiri, tetapi menjadi bagian dari rangkaian gunung lain di wilayah Busur Sunda. Meskipun sudah mengalami perubahan karena hujan dan waktu, gunung ini tetap menyimpan cerita tentang bagaimana alam membentuknya sedikit demi sedikit hingga menjadi seperti yang kita lihat hari ini.</p>
+            </div>
+            <div class="image-block gs-image">
+                <div class="img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop" alt="Gunung Betung Geologi" class="parallax-img">
+                </div>
+                <div class="glass-panel floating-card-info" data-tilt>
+                    <h4>Fase Vulkanik</h4>
+                    <p>Terbentuk dari aktivitas magma berulang yang membentuk stratovulkano kokoh di tepian Sesar Semangko.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="geologi">
+            <div class="section-header gs-text">
+                <span class="section-subtitle">02 — Kajian Ilmiah</span>
+                <h2 class="section-title">Geologi Gunung Betung</h2>
+                <div class="separator"></div>
+            </div>
+
+            <div class="geology-grid">
+                <div class="geo-card glass-panel gs-card">
+                    <i class="fa-solid fa-water geo-icon"></i>
+                    <h3>Pola Aliran Sungai</h3>
+                    <p>Pola aliran sungai di sekitar Gunung Betung adalah radial, yaitu sungai mengalir menyebar dari satu titik pusat ke segala arah mengikuti lereng gunung.</p>
+                </div>
+                <div class="geo-card glass-panel gs-card">
+                    <i class="fa-solid fa-arrows-to-circle geo-icon"></i>
+                    <h3>Pola Kelurusan</h3>
+                    <p>Pola kelurusan cenderung baratlaut–tenggara (NW–SE), mengikuti arah struktur regional yang dipengaruhi oleh Sesar Semangko, terlihat dari arah lembah sungai.</p>
+                </div>
+                <div class="geo-card glass-panel gs-card">
+                    <i class="fa-solid fa-mountain geo-icon"></i>
+                    <h3>Tahapan Bentang Alam</h3>
+                    <p>Bentang alam termasuk tahap muda hingga dewasa. Bentuk gunung masih jelas tetapi sudah mulai mengalami erosi intensif di beberapa bagian lereng.</p>
+                </div>
+                <div class="geo-card glass-panel gs-card">
+                    <i class="fa-solid fa-layer-group geo-icon"></i>
+                    <h3>Pengaruh Struktur (Sesar)</h3>
+                    <p>Struktur utama yang memengaruhi adalah Sesar Semangko (segmen barat), yang mengontrol arah lembah, pola sungai, dan bentuk topografi sekitarnya.</p>
+                </div>
+                <div class="geo-card glass-panel gs-card">
+                    <i class="fa-solid fa-gem geo-icon"></i>
+                    <h3>Tekstur & Struktur Batuan</h3>
+                    <p><strong>Tekstur:</strong> Sieve texture, Zoning, Glomerocryst.<br><strong>Struktur:</strong> Amigdaloidal, Ofitik yang mencirikan aliran lava purba.</p>
+                </div>
+                <div class="geo-card glass-panel gs-card">
+                    <i class="fa-solid fa-volcano geo-icon"></i>
+                    <h3>Vulkanostratigrafi</h3>
+                    <p>Tersusun oleh lapisan-lapisan hasil letusan gunungapi dari pusat erupsi. Setiap lapisan mencerminkan fase aktivitas yang berbeda dalam pembentukannya.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pariwisata">
+            <div class="section-header gs-text">
+                <span class="section-subtitle">03 — Destinasi</span>
+                <h2 class="section-title">Potensi Pariwisata</h2>
+                <div class="separator"></div>
+            </div>
+
+            <div class="tour-row">
+                <div class="tour-img gs-image">
+                    <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1200&auto=format&fit=crop" alt="Pendakian" class="parallax-img">
+                </div>
+                <div class="tour-content gs-text">
+                    <h3>Wisata Pendakian</h3>
+                    <p>Jalur pendakian Gunung Betung menawarkan pengalaman menantang sekaligus memukau dengan vegetasi hutan hujan tropis yang lebat. Cocok bagi para petualang yang mencari ketenangan dan pemandangan luar biasa dari ketinggian.</p>
+                    <div class="tour-stats">
+                        <div class="stat-item"><h4>1,124m</h4><span>MDPL</span></div>
+                        <div class="stat-item"><h4>3-4</h4><span>Jam Estimasi</span></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="card" style="align-self: start;">
-                    <h2>⛰️ Morfologi</h2>
-                    <p>Secara morfologi, Gunung Betung menunjukkan ciri gunung api yang telah mengalami erosi intensif:</p>
-                    <ul>
-                        <li>Lereng relatif terjal</li>
-                        <li>Bentuk tidak lagi simetris sempurna</li>
-                        <li>Proses erosi lebih dominan dibanding aktivitas konstruksi</li>
-                    </ul>
+            <div class="tour-row">
+                <div class="tour-img gs-image">
+                    <img src="https://images.unsplash.com/photo-1432405972618-c600f4871656?q=80&w=1200&auto=format&fit=crop" alt="Air Terjun" class="parallax-img">
+                </div>
+                <div class="tour-content gs-text">
+                    <h3>Wisata Air Terjun</h3>
+                    <p>Di kaki gunung, terdapat formasi air terjun tersembunyi yang terbentuk dari patahan batuan beku. Airnya yang jernih berasal langsung dari mata air pegunungan purba yang tersaring oleh batuan andesit basaltik.</p>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div id="page-3d" class="page">
-        <div id="webgl-container"></div>
+            <div class="tour-row">
+                <div class="tour-img gs-image">
+                    <img src="https://images.unsplash.com/photo-1508349937151-22b68b72d5b1?q=80&w=1200&auto=format&fit=crop" alt="Camping" class="parallax-img">
+                </div>
+                <div class="tour-content gs-text">
+                    <h3>Camping & Alam Terbuka</h3>
+                    <p>Beberapa area landai di lereng gunung telah dimanfaatkan sebagai area perkemahan. Menikmati malam dengan bintang yang terang sambil mempelajari batuan vulkanik di sekitar area tenda memberikan nuansa edukatif.</p>
+                </div>
+            </div>
+        </section>
 
-        <div id="loader" class="ui-overlay hidden">
-            <div class="spinner"></div>
-            <span id="loader-text">Memuat Model...</span>
-        </div>
-
-        <div class="ui-overlay top-bar">
-            <button class="btn-back" id="btn-back">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Kembali
-            </button>
+        <section id="galeri">
+            <div class="section-header gs-text">
+                <span class="section-subtitle">04 — Visualisasi</span>
+                <h2 class="section-title">Galeri Alam & Geologi</h2>
+                <div class="separator"></div>
+            </div>
             
-            <div class="mode-panel">
-                <button class="btn-mode active" data-mode="satellite">Satelit</button>
-                <button class="btn-mode" data-mode="geology">Geologi</button>
-                <button class="btn-mode" data-mode="morphometry">Morfometri</button>
+            <div class="masonry-gallery">
+                <div class="gallery-item gs-reveal"><img src="https://images.unsplash.com/photo-1542224566-6e85f2e6772f?q=80&w=600" alt="Mountain"><div class="gallery-overlay"><span>Bentang Alam Muda</span></div></div>
+                <div class="gallery-item gs-reveal"><img src="https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?q=80&w=600" alt="Rock"><div class="gallery-overlay"><span>Singkapan Andesit</span></div></div>
+                <div class="gallery-item gs-reveal"><img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=600" alt="Forest"><div class="gallery-overlay"><span>Hutan Tropis</span></div></div>
+                <div class="gallery-item gs-reveal"><img src="https://images.unsplash.com/photo-1476610182048-b716b8518aae?q=80&w=600" alt="Waterfall"><div class="gallery-overlay"><span>Air Terjun Patahan</span></div></div>
+                <div class="gallery-item gs-reveal"><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=600" alt="Aerial"><div class="gallery-overlay"><span>Tampak Udara Satelit</span></div></div>
+                <div class="gallery-item gs-reveal"><img src="https://images.unsplash.com/photo-1522163182402-834f871fd851?q=80&w=600" alt="Climbing"><div class="gallery-overlay"><span>Jalur Ekspedisi</span></div></div>
+            </div>
+        </section>
+
+        <section id="tim">
+            <div class="section-header gs-text">
+                <span class="section-subtitle">05 — Kreator</span>
+                <h2 class="section-title">Tim Pengembang</h2>
+                <div class="separator"></div>
+            </div>
+
+            <div class="team-grid">
+                <div class="team-card glass-panel gs-reveal" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.2">
+                    <div class="team-img-wrap">
+                        <img src="https://ui-avatars.com/api/?name=Christoper+Putra&background=111&color=fff&size=200" alt="Christoper">
+                    </div>
+                    <h3>Christoper Putra Pakpahan</h3>
+                    <p>Geologist / 3D Developer</p>
+                    <a href="https://www.instagram.com/choper_risto?igsh=c2xtNnRqMGJzejRm" target="_blank" class="social-btn"><i class="fa-brands fa-instagram"></i> Instagram</a>
+                </div>
+
+                <div class="team-card glass-panel gs-reveal" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.2">
+                    <div class="team-img-wrap">
+                        <img src="https://ui-avatars.com/api/?name=Abdul+Muarifudin&background=111&color=fff&size=200" alt="Abdul">
+                    </div>
+                    <h3>Abdul Muarifudin</h3>
+                    <p>Geospatial Analyst</p>
+                    <a href="https://www.instagram.com/d.dinkkk009" target="_blank" class="social-btn"><i class="fa-brands fa-instagram"></i> Instagram</a>
+                </div>
+
+                <div class="team-card glass-panel gs-reveal" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.2">
+                    <div class="team-img-wrap">
+                        <img src="https://ui-avatars.com/api/?name=Dipa+Anggraini&background=111&color=fff&size=200" alt="Dipa">
+                    </div>
+                    <h3>Dipa Anggraini</h3>
+                    <p>UI/UX & Content Writer</p>
+                    <a href="https://www.instagram.com/_dva_rain" target="_blank" class="social-btn"><i class="fa-brands fa-instagram"></i> Instagram</a>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-quote">
+                    "Bumi adalah perpustakaan batu yang besar, dan geologi adalah cara kita membaca buku-bukunya."
+                </div>
+                <div class="footer-social">
+                    <a href="#"><i class="fa-solid fa-envelope"></i></a>
+                    <a href="#"><i class="fa-solid fa-globe"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2024 Proyek Geologi Gunung Betung. All Rights Reserved. Designed with precision.
+            </div>
+        </footer>
+    </div>
+
+    <div id="viewer-3d-page">
+        <div class="viewer-header">
+            <a href="#" class="back-btn" onclick="close3DViewer()"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
+            <div class="model-switcher">
+                <button class="switcher-btn active" onclick="switchModel('satellite', this)">Satelit</button>
+                <button class="switcher-btn" onclick="switchModel('geology', this)">Peta Geologi</button>
+                <button class="switcher-btn" onclick="switchModel('morphometry', this)">Morfometri</button>
+            </div>
+            <div style="width: 100px;"></div> </div>
+
+        <div class="viewer-controls">
+            <button class="ctrl-btn" onclick="resetCamera()" title="Reset Kamera"><i class="fa-solid fa-video"></i></button>
+            <button class="ctrl-btn" onclick="toggleFullscreen()" title="Fullscreen"><i class="fa-solid fa-expand"></i></button>
+        </div>
+
+        <div id="legend-panel" class="glass-panel">
+            <div class="legend-title"><span>Legenda Geologi</span> <i class="fa-solid fa-layer-group"></i></div>
+            <div class="legend-content">
+                <div class="legend-item"><div class="color-box" style="background:#ff5555;"></div> Batuan Vulkanik Kuarter (Qv)</div>
+                <div class="legend-item"><div class="color-box" style="background:#55ff55;"></div> Aluvium (Qa)</div>
+                <div class="legend-item"><div class="color-box" style="background:#5555ff;"></div> Formasi Tarahan (Tpt)</div>
+                <div class="legend-item"><div class="color-box" style="background:#ffff55;"></div> Tuf Banten (Qvt)</div>
             </div>
         </div>
 
-        <div id="legend" class="ui-overlay hidden">
-            <h3>Legenda Geologi</h3>
-            <div class="legend-item"><div class="color-box" style="background:#ff5555;"></div> Andesit</div>
-            <div class="legend-item"><div class="color-box" style="background:#5555ff;"></div> Basalt</div>
-            <div class="legend-item"><div class="color-box" style="background:#55ff55;"></div> Breksi Vulkanik</div>
-            <div class="legend-item"><div class="color-box" style="background:#ffff55;"></div> Tuf</div>
+        <div id="loading-3d">
+            <div class="spinner"></div>
+            <p style="font-family: var(--font-modern); letter-spacing: 2px; font-size: 0.9rem;">MEMUAT DATA GEOLOGI...</p>
         </div>
 
-        <div class="ui-overlay instruction" id="main-instruction">
-            Gunakan mouse untuk putar (Kiri), geser (Kanan), & zoom (Scroll). Klik titik merah untuk lihat 360°.
-        </div>
+        <div id="tooltip-3d">Titik Koordinat</div>
+
+        <div id="webgl-container"></div>
     </div>
 
-    <div id="popup-360" class="popup-overlay">
-        <div class="header-360">
-            <div class="title-360">
-                <h2 id="title-360">Judul Lokasi</h2>
-                <p id="desc-360">Deskripsi singkat lokasi 360 derajat di sini.</p>
+    <div class="popup-overlay" id="popup-360">
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="popup-title"><i class="fa-solid fa-street-view"></i> Tinjauan 360° Lokasi</div>
+                <button class="close-btn" onclick="closePopup('popup-360')"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <button class="btn-close" id="btn-close-360">✖</button>
-        </div>
-        <div class="ui-overlay instruction" style="z-index: 102;">
-            Drag untuk melihat sekeliling. Klik titik kuning untuk detail geologi.
+            <div id="panorama-container"></div>
         </div>
     </div>
 
-    <div id="popup-detail" class="popup-overlay">
-        <div class="detail-card">
-            <button class="btn-close-detail" id="btn-close-detail">✖</button>
-            <img id="detail-img" class="detail-img" src="" alt="Detail Geologi">
-            <div class="detail-content">
-                <h2 id="detail-title">Judul Geologi</h2>
-                <p id="detail-desc">Penjelasan panjang mengenai struktur geologi, litologi, alterasi, dan proses pembentukannya akan muncul di sini.</p>
-            </div>
-        </div>
-    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+            }
+        }
+    </script>
 
     <script type="module">
         import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-        // ----------------------------------------------------
-        // 1. DATA & KONFIGURASI
-        // ----------------------------------------------------
-        const MODELS = {
-            satellite: 'betung_satellite.glb',
-            geology: 'betung_geology.glb',
-            morphometry: 'betung_morphometry.glb'
-        };
-
-        // Dummy Data Hotspot (Ganti koordinat & URL aset sesuai milik Anda)
-        const HOTSPOTS_DATA = [
-           
-    {
-        id: 'hp1',
-        // Ganti angka 15 (ketinggian) jadi 1 biar bolanya turun
-        position: new THREE.Vector3(0, 1, 5), 
-        title: "Puncak Gunung Betung",
-        desc: "Pemandangan dari area puncak memperlihatkan vegetasi rapat...",
+        /* --------------------------------------------------------------------------
+           1. CORE UI & ANIMATIONS (LANDING PAGE)
+           -------------------------------------------------------------------------- */
         
-        // PASTIKAN NAMA FILENYA PERSIS BEGINI:
-        img360: "foto_puncak_saya.jpeg", 
-        
-        innerHotspots: [
-                    {
-                        spherical: { radius: 400, phi: Math.PI / 2.2, theta: Math.PI / 4 },
-                        title: "Singkapan Andesit Porfiritik",
-                        hiResImg: "https://images.unsplash.com/photo-1617482937748-0c6e83863a87?auto=format&fit=crop&w=1000&q=80",
-                        desc: "Batuan andesit ini menunjukkan tekstur porfiritik yang jelas dengan fenokris plagioklas. Pembentukan terjadi akibat pendinginan magma intermediate secara dua tahap, di mana fenokris terbentuk lebih lambat di kedalaman sebelum massa dasar mendingin cepat di permukaan."
-                    }
-                ]
-            },
-            {
-                id: 'hp2',
-                position: new THREE.Vector3(15, 5, -10),
-                title: "Lereng Terjal & Zona Alterasi",
-                desc: "Area lereng ini menunjukkan bukti alterasi hidrotermal yang intensif.",
-                img360: "https://images.unsplash.com/photo-1596328546171-77e37b5fec33?auto=format&fit=crop&w=2000&q=80",
-                innerHotspots: [
-                    {
-                        spherical: { radius: 400, phi: Math.PI / 2, theta: -Math.PI / 2 },
-                        title: "Zona Oksidasi",
-                        hiResImg: "https://images.unsplash.com/photo-1525011268546-bf3f9b007f6a?auto=format&fit=crop&w=1000&q=80",
-                        desc: "Warna merah bata hingga kecoklatan menunjukkan proses oksidasi yang kuat. Mineral besi yang terkandung dalam batuan vulkanik bereaksi dengan fluida panas (hidrotermal) atau air meteorik di permukaan, membentuk oksida besi seperti hematit atau limonit."
-                    }
-                ]
+        // Initial Loading Screen
+        const loader = document.getElementById('loader');
+        const loaderBar = document.getElementById('loader-bar');
+        let progress = 0;
+        const fakeLoad = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 100) progress = 100;
+            loaderBar.style.width = progress + '%';
+            if (progress === 100) {
+                clearInterval(fakeLoad);
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 1000);
+                    initGSAPAnimations();
+                }, 500);
             }
-        ];
+        }, 150);
 
-        // ----------------------------------------------------
-        // 2. STATE MANAGER & UI CONTROLLER
-        // ----------------------------------------------------
-        const DOM = {
-            pageInfo: document.getElementById('page-info'),
-            page3d: document.getElementById('page-3d'),
-            container3d: document.getElementById('webgl-container'),
-            loader: document.getElementById('loader'),
-            legend: document.getElementById('legend'),
-            popup360: document.getElementById('popup-360'),
-            popupDetail: document.getElementById('popup-detail'),
-            modeBtns: document.querySelectorAll('.btn-mode')
-        };
-
-        let currentSceneState = 'MAIN'; // 'MAIN' atau '360'
-        let currentModel = null;
-        let animationId = null;
-
-        // Navigasi Halaman
-        document.getElementById('btn-start').addEventListener('click', () => {
-            DOM.pageInfo.classList.remove('active');
-            DOM.page3d.classList.add('active');
-            initEngine();
+        // Custom Cursor Logic
+        const cursor = document.getElementById('custom-cursor');
+        const cursorFollower = document.getElementById('custom-cursor-follower');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursorFollower.style.left = e.clientX + 'px';
+            cursorFollower.style.top = e.clientY + 'px';
         });
-
-        document.getElementById('btn-back').addEventListener('click', () => {
-            DOM.page3d.classList.remove('active');
-            DOM.pageInfo.classList.add('active');
-            // Matikan render loop jika diperlukan untuk menghemat daya
-        });
-
-        // Event Ganti Mode (Satelit, Geologi, Morfometri)
-        DOM.modeBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if(currentSceneState !== 'MAIN') return;
-                
-                DOM.modeBtns.forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                
-                const mode = e.target.dataset.mode;
-                
-                // Toggle Legend khusus geologi
-                if (mode === 'geology') DOM.legend.classList.remove('hidden');
-                else DOM.legend.classList.add('hidden');
-
-                loadModel(MODELS[mode]);
+        document.querySelectorAll('a, button, .geo-card, .team-card, .gallery-item').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorFollower.classList.add('cursor-hover');
+                cursor.classList.add('cursor-dot-hover');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorFollower.classList.remove('cursor-hover');
+                cursor.classList.remove('cursor-dot-hover');
             });
         });
 
-        // ----------------------------------------------------
-        // 3. THREE.JS CORE ENGINE (1 Renderer, 2 Scenes)
-        // ----------------------------------------------------
-        let renderer, raycaster, mouse;
-        
-        // Main Scene Objects
-        let mainScene, mainCamera, mainControls;
-        let mainHotspotsGroup;
-        
-        // 360 Scene Objects
-        let scene360, camera360, controls360;
-        let sphere360, innerHotspotsGroup;
+        // Background Canvas Particles (Hero)
+        const canvas = document.getElementById('hero-particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-        let isEngineInitialized = false;
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5; this.speedY = Math.random() * 0.5 + 0.1;
+                this.opacity = Math.random() * 0.5;
+            }
+            update() {
+                this.y -= this.speedY;
+                if (this.y < 0) { this.y = canvas.height; this.x = Math.random() * canvas.width; }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 106, 0, ${this.opacity})`;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        for (let i = 0; i < 100; i++) particles.push(new Particle());
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
 
-        function initEngine() {
-            if (isEngineInitialized) return;
+        // Lenis Smooth Scroll Setup
+        const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), direction: 'vertical', gestureDirection: 'vertical', smooth: true, mouseMultiplier: 1, smoothTouch: false });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
 
-            // Renderer Setup
+        // Navbar Scroll Effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+        function initGSAPAnimations() {
+            // Hero
+            gsap.from('.hero-title', { y: 100, opacity: 0, duration: 1.5, ease: 'power4.out', delay: 0.2 });
+            gsap.from('.hero-subtitle', { y: 50, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.5 });
+            gsap.from('.hero-buttons', { y: 50, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.8 });
+            
+            // Hero Parallax effect
+            gsap.to('.hero-bg', { yPercent: 20, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }});
+
+            // Reveal texts & elements
+            gsap.utils.toArray('.gs-text').forEach(elem => {
+                gsap.from(elem, { scrollTrigger: { trigger: elem, start: 'top 85%' }, y: 50, opacity: 0, duration: 1, ease: 'power3.out' });
+            });
+            gsap.utils.toArray('.gs-image').forEach(elem => {
+                gsap.from(elem, { scrollTrigger: { trigger: elem, start: 'top 85%' }, scale: 0.9, opacity: 0, duration: 1.2, ease: 'power3.out' });
+            });
+            gsap.utils.toArray('.parallax-img').forEach(img => {
+                gsap.to(img, { yPercent: 15, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: true }});
+            });
+
+            // Stagger Cards
+            gsap.from('.gs-card', { scrollTrigger: { trigger: '.geology-grid', start: 'top 80%' }, y: 50, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' });
+            gsap.from('.gallery-item', { scrollTrigger: { trigger: '.masonry-gallery', start: 'top 80%' }, y: 50, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' });
+        }
+
+
+        /* --------------------------------------------------------------------------
+           2. SPA ROUTING (Landing <-> 3D Viewer)
+           -------------------------------------------------------------------------- */
+        window.open3DViewer = function() {
+            document.getElementById('landing-page').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('landing-page').style.display = 'none';
+                const viewer = document.getElementById('viewer-3d-page');
+                viewer.style.display = 'block';
+                setTimeout(() => viewer.style.opacity = '1', 50);
+                lenis.stop(); // Disable scroll on 3D
+                if(!threeAppInitialized) initThreeJS();
+            }, 1000);
+        }
+        window.close3DViewer = function() {
+            document.getElementById('viewer-3d-page').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('viewer-3d-page').style.display = 'none';
+                const landing = document.getElementById('landing-page');
+                landing.style.display = 'block';
+                setTimeout(() => landing.style.opacity = '1', 50);
+                lenis.start();
+            }, 1000);
+        }
+
+        window.toggleFullscreen = function() {
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); } 
+            else if (document.exitFullscreen) { document.exitFullscreen(); }
+        }
+
+        window.closePopup = function(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+
+        /* --------------------------------------------------------------------------
+           3. THREE.JS ENGINE & GLTF LOADER
+           -------------------------------------------------------------------------- */
+        let scene, camera, renderer, controls;
+        let currentModel = null;
+        let interactiveMarkers = [];
+        let threeAppInitialized = false;
+        let raycaster, mouse;
+
+        const MODEL_FILES = {
+            satellite: 'gunung_betung_satellite.glb',
+            geology: 'gunung_betung_geologi.glb',
+            morphometry: 'gunung_betung_morfometri.glb'
+        };
+
+        function initThreeJS() {
+            const container = document.getElementById('webgl-container');
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x000000, 0.002); // Cinematic fog
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 50, 100);
+
+            // Renderer setup
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimasi performa
-            DOM.container3d.appendChild(renderer.domElement);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            container.appendChild(renderer.domElement);
 
+            // Controls setup
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.05; // Don't go below ground
+            controls.minDistance = 10;
+            controls.maxDistance = 200;
+
+            // Lighting setup (Cinematic)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xfff0dd, 2);
+            dirLight.position.set(50, 100, 50);
+            scene.add(dirLight);
+
+            const hemiLight = new THREE.HemisphereLight(0x444444, 0x000000, 1);
+            scene.add(hemiLight);
+
+            // Raycaster for interaction
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
 
-            // Setup Dua Scene
-            initMainScene();
-            init360Scene();
+            // Load initial model
+            loadModel('satellite');
 
-            window.addEventListener('resize', onWindowResize);
-            renderer.domElement.addEventListener('pointerdown', onPointerDown);
-
-            isEngineInitialized = true;
+            // Resize handler
+            window.addEventListener('resize', onWindowResize, false);
             
-            // Mulai render loop & load model awal
-            animate();
-            loadModel(MODELS.satellite);
+            // Interaction listeners
+            renderer.domElement.addEventListener('mousemove', onMouseMove, false);
+            renderer.domElement.addEventListener('click', onMouseClick, false);
+
+            threeAppInitialized = true;
+            animateThree();
         }
 
-        // --- INISIALISASI MAIN SCENE ---
-        function initMainScene() {
-            mainScene = new THREE.Scene();
-            
-            mainCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
-            mainCamera.position.set(0, 80, 120);
+        function loadModel(type) {
+            const loadingUI = document.getElementById('loading-3d');
+            loadingUI.style.display = 'block';
 
-            mainControls = new OrbitControls(mainCamera, renderer.domElement);
-            mainControls.enableDamping = true;
-            mainControls.dampingFactor = 0.05;
-            mainControls.maxPolarAngle = Math.PI / 2 - 0.05; // Jangan sampai tembus bawah tanah
-
-            // Pencahayaan
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-            mainScene.add(ambientLight);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-            dirLight.position.set(100, 200, 50);
-            mainScene.add(dirLight);
-
-            // Group untuk Hotspot Merah
-            mainHotspotsGroup = new THREE.Group();
-            mainScene.add(mainHotspotsGroup);
-            buildMainHotspots();
-        }
-
-        // --- INISIALISASI 360 SCENE ---
-        function init360Scene() {
-            scene360 = new THREE.Scene();
-            
-            camera360 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1500);
-            camera360.position.set(0, 0, 0.1); // Di dalam bola
-
-            controls360 = new OrbitControls(camera360, renderer.domElement);
-            controls360.enableDamping = true;
-            controls360.dampingFactor = 0.05;
-            controls360.enableZoom = false; // Fix posisi di tengah
-            controls360.enablePan = false;
-            controls360.rotateSpeed = -0.5; // Balik arah drag
-
-            // Bola 360 Terbalik
-            const geom = new THREE.SphereGeometry(2, 0.1, 0.05);
-            geom.scale(-1, 1, 1); // Balik normal
-            const mat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-            sphere360 = new THREE.Mesh(geom, mat);
-            scene360.add(sphere360);
-
-            // Group untuk Hotspot Inner (Kuning)
-            innerHotspotsGroup = new THREE.Group();
-            scene360.add(innerHotspotsGroup);
-        }
-
-        // ----------------------------------------------------
-        // 4. SISTEM LOAD & CLEANUP MODEL
-        // ----------------------------------------------------
-        function loadModel(url) {
-            DOM.loader.classList.remove('hidden');
-
-            // Cleanup memory sebelum load baru
             if (currentModel) {
-                mainScene.remove(currentModel);
-                disposeHierarchy(currentModel);
-                currentModel = null;
+                scene.remove(currentModel);
+                // Dispose geometry/materials to free memory
+                currentModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.geometry.dispose();
+                        if (child.material.isMaterial) child.material.dispose();
+                        else if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+                    }
+                });
             }
 
+            // Remove old markers
+            interactiveMarkers.forEach(m => scene.remove(m));
+            interactiveMarkers = [];
+
             const loader = new GLTFLoader();
+            
+            // Note: Since this is a single file template, if the .glb files are missing, 
+            // ThreeJS will throw a 404 error. To prevent breaking the UI in demo mode,
+            // we wrap it in a try/catch or provide a fallback simple geometry if fail.
             loader.load(
-                url,
-                (gltf) => {
+                MODEL_FILES[type],
+                function (gltf) {
                     currentModel = gltf.scene;
                     
-                    // Tengahkan model (opsional jika model tidak center)
+                    // Center and scale model
                     const box = new THREE.Box3().setFromObject(currentModel);
                     const center = box.getCenter(new THREE.Vector3());
-                    currentModel.position.x += (currentModel.position.x - center.x);
-                    currentModel.position.y += (currentModel.position.y - center.y);
-                    currentModel.position.z += (currentModel.position.z - center.z);
+                    const size = box.getSize(new THREE.Vector3());
                     
-                    mainScene.add(currentModel);
-                    DOM.loader.classList.add('hidden');
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 100 / maxDim; // Normalize size to fit screen
+                    currentModel.scale.setScalar(scale);
+                    
+                    currentModel.position.x = -center.x * scale;
+                    currentModel.position.y = -center.y * scale;
+                    currentModel.position.z = -center.z * scale;
+
+                    scene.add(currentModel);
+                    
+                    // Add interactive markers
+                    addMarkers();
+
+                    loadingUI.style.display = 'none';
                 },
                 undefined,
-                (error) => {
-                    console.error('Error loading model:', error);
-                    document.getElementById('loader-text').innerText = "Gagal memuat: " + url;
-                    setTimeout(() => DOM.loader.classList.add('hidden'), 3000);
-                    
-                    // Fallback visual agar layar tidak kosong saat testing tanpa file
-                    const geom = new THREE.BoxGeometry(50, 10, 50);
-                    const mat = new THREE.MeshStandardMaterial({color: 0x555555, wireframe: true});
-                    currentModel = new THREE.Mesh(geom, mat);
-                    mainScene.add(currentModel);
+                function (error) {
+                    console.warn(`File ${MODEL_FILES[type]} tidak ditemukan, menggunakan model simulasi sebagai fallback.`);
+                    // Fallback to a procedural mountain if file not found (for robust demo)
+                    createFallbackMountain();
+                    loadingUI.style.display = 'none';
                 }
             );
+
+            // Manage Legend UI
+            const legend = document.getElementById('legend-panel');
+            if(type === 'geology') {
+                legend.classList.add('show');
+            } else {
+                legend.classList.remove('show');
+            }
         }
 
-        function disposeHierarchy(node) {
-            node.traverse((child) => {
-                if (child.isMesh) {
-                    if (child.geometry) child.geometry.dispose();
-                    if (child.material) {
-                        if (Array.isArray(child.material)) child.material.forEach(m => disposeMaterial(m));
-                        else disposeMaterial(child.material);
-                    }
-                }
-            });
+        // Fallback procedural mountain if user hasn't downloaded .glb yet
+        function createFallbackMountain() {
+            const geometry = new THREE.PlaneGeometry(100, 100, 64, 64);
+            // Displace vertices to look like a mountain
+            const posAttribute = geometry.attributes.position;
+            for(let i=0; i<posAttribute.count; i++) {
+                const x = posAttribute.getX(i);
+                const y = posAttribute.getY(i);
+                const dist = Math.sqrt(x*x + y*y);
+                const z = Math.max(0, 20 - dist * 0.4) + (Math.random()*2);
+                posAttribute.setZ(i, z);
+            }
+            geometry.computeVertexNormals();
+            const material = new THREE.MeshStandardMaterial({ color: 0x44aa44, wireframe: false, flatShading: true });
+            currentModel = new THREE.Mesh(geometry, material);
+            currentModel.rotation.x = -Math.PI / 2;
+            scene.add(currentModel);
+            addMarkers();
         }
 
-        function disposeMaterial(mat) {
-            mat.dispose();
-            if (mat.map) mat.map.dispose();
-            if (mat.normalMap) mat.normalMap.dispose();
-            // ...dispose tekstur lain jika ada
+        function addMarkers() {
+            // Marker 1: -5.429191, 105.155359 (Simulated coordinates on 3D space)
+            createMarker(new THREE.Vector3(10, 15, 5), "Singkapan Andesit (-5.429, 105.155)", "marker_1");
+            
+            // Marker 2: -5.427199, 105.152394
+            createMarker(new THREE.Vector3(-15, 12, -10), "Air Terjun Patahan (-5.427, 105.152)", "marker_2");
         }
 
-        // ----------------------------------------------------
-        // 5. SISTEM HOTSPOT UTAMA (RAYCASTING)
-        // ----------------------------------------------------
-        function buildMainHotspots() {
-            const geom = new THREE.SphereGeometry(2, 32, 32);
-            const mat = new THREE.MeshBasicMaterial({ color: 0xff3333 });
+        function createMarker(position, label, id) {
+            // Glowing sphere
+            const geom = new THREE.SphereGeometry(1.5, 32, 32);
+            const mat = new THREE.MeshBasicMaterial({ color: 0xff6a00 });
+            const marker = new THREE.Mesh(geom, mat);
+            marker.position.copy(position);
+            marker.userData = { label: label, id: id };
+            scene.add(marker);
 
-            HOTSPOTS_DATA.forEach(data => {
-                const mesh = new THREE.Mesh(geom, mat);
-                mesh.position.copy(data.position);
-                mesh.userData = data; // Payload
-                
-                // Tambah outline/cincin biar cantik
-                const ringGeom = new THREE.RingGeometry(2.5, 3.5, 32);
-                const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
-                const ring = new THREE.Mesh(ringGeom, ringMat);
-                ring.rotation.x = Math.PI / 2;
-                mesh.add(ring);
+            // Add an outer ring for pulsing effect
+            const ringGeom = new THREE.RingGeometry(2, 2.5, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xff6a00, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+            const ring = new THREE.Mesh(ringGeom, ringMat);
+            ring.lookAt(camera.position); // Billboard
+            marker.add(ring);
+            
+            // Store reference for animation/interaction
+            marker.userData.ring = ring;
+            marker.userData.timeOffset = Math.random() * Math.PI;
 
-                mainHotspotsGroup.add(mesh);
-            });
+            interactiveMarkers.push(marker);
         }
 
-        function onPointerDown(event) {
-            // Cegah interaksi jika klik di atas elemen UI
-            if(event.target !== renderer.domElement) return;
-
+        function onMouseMove(event) {
+            event.preventDefault();
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-            if (currentSceneState === 'MAIN') {
-                raycaster.setFromCamera(mouse, mainCamera);
-                const intersects = raycaster.intersectObjects(mainHotspotsGroup.children, false); // false = jangan hit anak (ring)
-                if (intersects.length > 0) open360Viewer(intersects[0].object.userData);
-            } 
-            else if (currentSceneState === '360') {
-                raycaster.setFromCamera(mouse, camera360);
-                const intersects = raycaster.intersectObjects(innerHotspotsGroup.children);
-                if (intersects.length > 0) openDetailPopup(intersects[0].object.userData);
-            }
-        }
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(interactiveMarkers);
 
-        // ----------------------------------------------------
-        // 6. SISTEM VIEWER 360 & POPUP DETAIL
-        // ----------------------------------------------------
-        function open360Viewer(data) {
-            // Update UI
-            document.getElementById('title-360').innerText = data.title;
-            document.getElementById('desc-360').innerText = data.desc;
-            DOM.popup360.classList.add('active');
+            const tooltip = document.getElementById('tooltip-3d');
 
-            // Tampilkan Loading
-            DOM.loader.classList.remove('hidden');
-            document.getElementById('loader-text').innerText = "Memuat 360...";
-
-            // Load Tekstur 360
-            const texLoader = new THREE.TextureLoader();
-            texLoader.load(data.img360, (texture) => {
-                if(sphere360.material.map) sphere360.material.map.dispose();
-                sphere360.material.map = texture;
-                sphere360.material.needsUpdate = true;
-                DOM.loader.classList.add('hidden');
-            }, undefined, () => {
-                DOM.loader.classList.add('hidden');
-                console.log("Gambar 360 gagal dimuat. Menggunakan fallback.");
-            });
-
-            // Build Inner Hotspots (Titik Kuning)
-            innerHotspotsGroup.clear();
-            const geom = new THREE.SphereGeometry(15, 32, 32);
-            const mat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
-
-            data.innerHotspots.forEach(hp => {
-                const mesh = new THREE.Mesh(geom, mat);
-                mesh.position.setFromSphericalCoords(hp.spherical.radius, hp.spherical.phi, hp.spherical.theta);
-                mesh.userData = hp;
-                innerHotspotsGroup.add(mesh);
-            });
-
-            // Switch State
-            currentSceneState = '360';
-        }
-
-        document.getElementById('btn-close-360').addEventListener('click', () => {
-            DOM.popup360.classList.remove('active');
-            currentSceneState = 'MAIN';
-            // Bebaskan memory tekstur 360
-            if(sphere360.material.map) {
-                sphere360.material.map.dispose();
-                sphere360.material.map = null;
-            }
-        });
-
-        function openDetailPopup(detailData) {
-            document.getElementById('detail-img').src = detailData.hiResImg;
-            document.getElementById('detail-title').innerText = detailData.title;
-            document.getElementById('detail-desc').innerText = detailData.desc;
-            DOM.popupDetail.classList.add('active');
-        }
-
-        document.getElementById('btn-close-detail').addEventListener('click', () => {
-            DOM.popupDetail.classList.remove('active');
-        });
-
-        // ----------------------------------------------------
-        // 7. RENDER LOOP & RESIZE
-        // ----------------------------------------------------
-        function animate() {
-            animationId = requestAnimationFrame(animate);
-
-            if (currentSceneState === 'MAIN') {
-                mainControls.update();
+            if (intersects.length > 0) {
+                document.body.style.cursor = 'pointer';
+                const marker = intersects[0].object;
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.clientX + 15) + 'px';
+                tooltip.style.top = (event.clientY + 15) + 'px';
+                tooltip.innerHTML = marker.userData.label;
                 
-                // Animasi berdenyut pada cincin hotspot utama
-                const time = Date.now() * 0.003;
-                mainHotspotsGroup.children.forEach(hp => {
-                    const ring = hp.children[0];
-                    if(ring) ring.scale.setScalar(1 + Math.sin(time) * 0.2);
+                // Highlight
+                gsap.to(marker.scale, { x: 1.5, y: 1.5, z: 1.5, duration: 0.3 });
+            } else {
+                document.body.style.cursor = 'none';
+                tooltip.style.display = 'none';
+                interactiveMarkers.forEach(m => {
+                    gsap.to(m.scale, { x: 1, y: 1, z: 1, duration: 0.3 });
                 });
+            }
+        }
 
-                renderer.render(mainScene, mainCamera);
-            } 
-            else if (currentSceneState === '360') {
-                controls360.update();
-                renderer.render(scene360, camera360);
+        function onMouseClick(event) {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(interactiveMarkers);
+            if (intersects.length > 0) {
+                const id = intersects[0].object.userData.id;
+                open360Viewer(id);
             }
         }
 
         function onWindowResize() {
-            const w = window.innerWidth;
-            const h = window.innerHeight;
-            renderer.setSize(w, h);
+            if(!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animateThree() {
+            requestAnimationFrame(animateThree);
+            controls.update();
+
+            const time = Date.now() * 0.003;
+
+            // Animate markers (floating and pulsing)
+            interactiveMarkers.forEach(marker => {
+                // Float
+                marker.position.y += Math.sin(time + marker.userData.timeOffset) * 0.02;
+                // Billboard ring
+                if(marker.userData.ring) {
+                    marker.userData.ring.lookAt(camera.position);
+                    const scale = 1 + Math.sin(time * 2 + marker.userData.timeOffset) * 0.2;
+                    marker.userData.ring.scale.setScalar(scale);
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        // UI Switcher Logic bind to window
+        window.switchModel = function(type, btnElement) {
+            document.querySelectorAll('.switcher-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            loadModel(type);
+        }
+        window.resetCamera = function() {
+            gsap.to(camera.position, { x: 0, y: 50, z: 100, duration: 1.5, ease: "power3.inOut" });
+            gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: "power3.inOut" });
+        }
+
+
+        /* --------------------------------------------------------------------------
+           4. PANNELLUM 360 VIEWER
+           -------------------------------------------------------------------------- */
+        let viewer360 = null;
+
+        function open360Viewer(markerId) {
+            document.getElementById('popup-360').classList.add('active');
             
-            mainCamera.aspect = w / h;
-            mainCamera.updateProjectionMatrix();
-            
-            camera360.aspect = w / h;
-            camera360.updateProjectionMatrix();
+            // Cleanup existing viewer if any
+            if(viewer360) {
+                viewer360.destroy();
+            }
+
+            // Using Pannellum to load 360 image. 
+            // In a real scenario, use actual 360 photos. Here we use a standard equirectangular placeholder.
+            viewer360 = pannellum.viewer('panorama-container', {
+                "type": "equirectangular",
+                "panorama": "https://pannellum.org/images/alma.jpg",
+                "autoLoad": true,
+                "compass": true,
+                "hotSpots": [
+                    {
+                        "pitch": 14.1,
+                        "yaw": 1.5,
+                        "type": "info",
+                        "text": "Struktur Batuan Beku: Amigdaloidal",
+                        "URL": "https://en.wikipedia.org/wiki/Amygdule" // Or trigger another function
+                    },
+                    {
+                        "pitch": -9.4,
+                        "yaw": 222.6,
+                        "type": "info",
+                        "text": "Jalur Aliran Lava Purba"
+                    }
+                ]
+            });
         }
 
     </script>
