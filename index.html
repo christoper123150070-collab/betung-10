@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gunung Betung - Edit Hotspot Interaktif</title>
+    <title>Gunung Betung - Titik Proporsional & Edit Interaktif</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <style>
-        /* ========== CSS (sama seperti sebelumnya, hanya tambahan style untuk tombol edit) ========== */
+        /* ========== CSS (sama seperti sebelumnya, tidak diubah) ========== */
         :root {
             --primary: #0f172a;
             --secondary: #1e293b;
@@ -184,7 +184,7 @@
     <section class="section" style="background:rgba(255,255,255,0.02);"><div class="container"><div class="section-header reveal"><h2 class="section-title">Geologi Gunung Betung</h2></div><div class="card-grid"><div class="card reveal"><div class="card-icon">🌊</div><h3 class="card-title">Pola Aliran Sungai</h3><p class="card-text">Pola aliran sungai di sekitar Gunung Betung adalah radial.</p></div><div class="card reveal"><div class="card-icon">📏</div><h3 class="card-title">Pola Kelurusan</h3><p class="card-text">Pola kelurusan cenderung baratlaut–tenggara (NW–SE).</p></div></div></div></section>
     <section class="section"><div class="container"><div class="section-header reveal"><h2 class="section-title">Potensi Pariwisata</h2></div><div class="card-grid"><div class="card reveal"><div class="card-icon">🌄</div><h3 class="card-title">Wisata Pendakian</h3><p class="card-text">Gunung Betung ramah bagi pendaki pemula.</p></div><div class="card reveal"><div class="card-icon">💧</div><h3 class="card-title">Wisata Air Terjun</h3><p class="card-text">Terdapat banyak air terjun di lerengnya.</p></div></div></div></section>
     <section class="section" style="background:rgba(255,255,255,0.02);"><div class="container"><div class="section-header reveal"><h2 class="section-title">Tim Pengembang</h2></div><div class="profile-grid"><div class="profile-card reveal"><div class="profile-img-wrap"><div class="profile-placeholder">👨‍💻</div></div><div class="profile-info"><h3 class="profile-name">Christoper Putra Pakpahan</h3><span class="profile-role">Developer & Geologist</span><a href="https://www.instagram.com/choper_risto" target="_blank" class="btn-ig">Instagram</a></div></div><div class="profile-card reveal"><div class="profile-img-wrap"><div class="profile-placeholder">👨‍💻</div></div><div class="profile-info"><h3 class="profile-name">Abdul Muarifudin</h3><span class="profile-role">UI/UX & Data Analyst</span><a href="https://www.instagram.com/d.dinkkk009" target="_blank" class="btn-ig">Instagram</a></div></div><div class="profile-card reveal"><div class="profile-img-wrap"><div class="profile-placeholder">👩‍💻</div></div><div class="profile-info"><h3 class="profile-name">Dipa Anggraini</h3><span class="profile-role">GIS & 3D Modeler</span><a href="https://www.instagram.com/_dva_rain" target="_blank" class="btn-ig">Instagram</a></div></div></div></div></section>
-    <footer><div class="container"><p class="footer-text">&copy; 2025 Gunung Betung 3D Explorer - Dengan Fitur Edit Hotspot</p></div></footer>
+    <footer><div class="container"><p class="footer-text">&copy; 2025 Gunung Betung 3D Explorer - Titik Proporsional & Edit Interaktif</p></div></footer>
 </div>
 
 <div id="page-viewer" class="page-container">
@@ -231,7 +231,7 @@
         'GEOLOGI': { title: 'Legenda Geologi', items: [ { type: 'circle', color: '#ff0000', label: 'Pusat Erupsi' }, { type: 'circle', color: '#555555', label: 'Kawah' }, { type: 'line', color: '#ff0000', label: 'Kelurusan (NW-SE)' } ] }
     };
 
-    // ======================== ENGINE 3D DENGAN FITUR EDIT ========================
+    // ======================== ENGINE 3D DENGAN UKURAN TITIK PROPORSIONAL ========================
     const engine3D = {
         initialized: false,
         currentMode: 'SATELIT',
@@ -240,9 +240,9 @@
         raycaster: new THREE.Raycaster(), mouse: new THREE.Vector2(),
         boundingBox: new THREE.Box3(), centerOffset: new THREE.Vector3(), maxDim: 1,
         viewer360Active: false, scene360: null, camera360: null, sphere360: null, hotspot360Group: null,
-        // Fitur edit
         editMode: false,
         selectedHotspot: null,
+        markerScaleFactor: 1.0,   // akan diisi saat createHotspots
 
         initScene: function() {
             this.container = document.getElementById('canvas-container');
@@ -314,7 +314,6 @@
             if(this.editMode) {
                 btn.classList.add('edit-active');
                 btn.innerHTML = '✅ Selesai Edit';
-                // Reset pilihan sebelumnya
                 if(this.selectedHotspot) {
                     this.selectedHotspot.children[0].material.emissiveIntensity = 0.5;
                     this.selectedHotspot = null;
@@ -384,10 +383,22 @@
             this.boundingBox.getSize(size);
             const maxD = Math.max(size.x, size.z);
             const yMax = size.y;
-            const geoSphere = new THREE.SphereGeometry(1.2, 32, 32);
+            // Tentukan ukuran marker secara proporsional: 2% dari dimensi terbesar (min 0.3, max 2.0)
+            let markerBase = Math.max(size.y, maxD) * 0.02;
+            markerBase = Math.min(2.0, Math.max(0.3, markerBase));
+            this.markerScaleFactor = markerBase;
+            
+            const sphereRadius = markerBase;
+            const torusRadius = markerBase * 1.5;
+            const torusTube = markerBase * 0.12;
+            const hitBoxSize = markerBase * 3.0;
+            const yOffset = markerBase * 1.2;  // floating di atas tanah
+            
+            const geoSphere = new THREE.SphereGeometry(sphereRadius, 32, 32);
             const matSphere = new THREE.MeshStandardMaterial({ color: 0xd4af37, emissive: 0xff8800, emissiveIntensity: 0.5, roughness: 0.2, metalness: 0.8 });
-            const geoRing = new THREE.TorusGeometry(1.8, 0.1, 16, 32);
+            const geoRing = new THREE.TorusGeometry(torusRadius, torusTube, 16, 32);
             const matRing = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+            
             HOTSPOT_DATA.forEach((data, index) => {
                 const group = new THREE.Group();
                 const sphere = new THREE.Mesh(geoSphere, matSphere.clone());
@@ -402,9 +413,13 @@
                 const intersects = downRay.intersectObject(this.modelGroup, true);
                 let posY = data.relY * yMax;
                 if(intersects.length > 0) posY = intersects[0].point.y;
-                group.position.set(posX, posY + 1.5, posZ);
-                group.userData = { id: data.id, title: data.title, tag: data.tag, desc: data.desc, isHotspot: true, originalY: posY + 1.5, offset: index };
-                const hitGeo = new THREE.BoxGeometry(4,4,4);
+                group.position.set(posX, posY + yOffset, posZ);
+                group.userData = { 
+                    id: data.id, title: data.title, tag: data.tag, desc: data.desc, 
+                    isHotspot: true, originalY: posY + yOffset, offset: index,
+                    yOffset: yOffset   // simpan untuk keperluan edit
+                };
+                const hitGeo = new THREE.BoxGeometry(hitBoxSize, hitBoxSize, hitBoxSize);
                 const hitMat = new THREE.MeshBasicMaterial({visible: false});
                 const hitBox = new THREE.Mesh(hitGeo, hitMat);
                 hitBox.userData = group.userData;
@@ -444,10 +459,9 @@
             this.hotspotGroup.children.forEach(group => hitBoxes.push(group.children[2]));
             const hits = this.raycaster.intersectObjects(hitBoxes);
             
-            // ---- MODE EDIT ----
+            // Mode edit
             if(this.editMode) {
                 if(hits.length > 0) {
-                    // Pilih titik yang diklik
                     const group = hits[0].object.parent;
                     if(this.selectedHotspot) {
                         this.selectedHotspot.children[0].material.emissiveIntensity = 0.5;
@@ -458,18 +472,17 @@
                     group.children[0].material.color.setHex(0xffaa44);
                     return;
                 } else {
-                    // Jika ada titik terpilih, pindahkan ke posisi klik pada model
                     if(this.selectedHotspot) {
-                        // Raycast ke model untuk mendapatkan titik di permukaan
                         const raycasterModel = new THREE.Raycaster();
                         raycasterModel.setFromCamera(this.mouse, this.camera);
                         const modelIntersects = raycasterModel.intersectObject(this.modelGroup, true);
                         if(modelIntersects.length > 0) {
                             const hitPoint = modelIntersects[0].point;
+                            const yOffset = this.selectedHotspot.userData.yOffset || this.markerScaleFactor * 1.2;
                             this.selectedHotspot.position.copy(hitPoint);
-                            this.selectedHotspot.position.y += 1.5; // offset marker
-                            this.selectedHotspot.userData.originalY = hitPoint.y + 1.5;
-                            // Update HOTSPOT_DATA dengan posisi relatif baru
+                            this.selectedHotspot.position.y += yOffset;
+                            this.selectedHotspot.userData.originalY = hitPoint.y + yOffset;
+                            // Update HOTSPOT_DATA
                             const id = this.selectedHotspot.userData.id;
                             const dataIndex = HOTSPOT_DATA.findIndex(d => d.id === id);
                             if(dataIndex !== -1) {
@@ -490,7 +503,7 @@
                 }
             }
             
-            // ---- MODE NORMAL: klik hotspot -> zoom + buka 360 ----
+            // Mode normal
             if(hits.length > 0 && event.type === 'click') {
                 const data = hits[0].object.userData;
                 const targetPos = hits[0].object.parent.position;
@@ -619,7 +632,15 @@
             requestAnimationFrame(() => this.animate());
             const time = Date.now() * 0.002;
             if(this.hotspotGroup && !this.viewer360Active) {
-                this.hotspotGroup.children.forEach(group => { const ring = group.children[1]; const data = group.userData; group.position.y = data.originalY + Math.sin(time + data.offset) * 0.5; let scale = (time * 0.5 + data.offset) % 2; ring.scale.set(scale, scale, scale); ring.material.opacity = 1 - (scale / 2); });
+                this.hotspotGroup.children.forEach(group => {
+                    const ring = group.children[1];
+                    const data = group.userData;
+                    const amplitude = this.markerScaleFactor * 0.4;
+                    group.position.y = data.originalY + Math.sin(time + data.offset) * amplitude;
+                    let scale = (time * 0.5 + data.offset) % 2;
+                    ring.scale.set(scale, scale, scale);
+                    ring.material.opacity = 1 - (scale / 2);
+                });
             }
             if(this.viewer360Active && this.scene360) { if(this.update360Camera) this.update360Camera(); if(this.hotspot360Group.children.length > 0) { const marker = this.hotspot360Group.children[0]; marker.lookAt(this.camera360.position); marker.scale.setScalar(1 + Math.sin(time*3)*0.1); } this.renderer.render(this.scene360, this.camera360); } else { this.controls.update(); this.renderer.render(this.scene, this.camera); }
         }
