@@ -15,84 +15,157 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <style>
-        /* ========== SAME STYLES AS BEFORE (ringkas) ========== */
+        /* ========== CSS (sama seperti sebelumnya, hanya tambahan style untuk tombol edit) ========== */
         :root {
-            --primary: #0f172a; --secondary: #1e293b; --accent: #d4af37; --accent-hover: #fcd34d;
-            --text-main: #f8fafc; --text-muted: #94a3b8; --danger: #ef4444;
-            --font-heading: 'Playfair Display', serif; --font-body: 'Poppins', sans-serif;
-            --glass-bg: rgba(15, 23, 42, 0.7); --glass-border: rgba(255,255,255,0.08);
-            --transition-smooth: all 0.6s cubic-bezier(0.16,1,0.3,1);
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #d4af37;
+            --accent-hover: #fcd34d;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Poppins', sans-serif;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-fast: all 0.3s ease;
+            --z-nav: 100;
+            --z-ui: 50;
+            --z-modal: 200;
+            --z-loader: 999;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: var(--font-body); background: var(--primary); color: var(--text-main); overflow-x: hidden; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: var(--primary); color: var(--text-main); overflow-x: hidden; line-height: 1.6; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--primary); }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+        h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; line-height: 1.2; }
+        p { margin-bottom: 1rem; color: var(--text-muted); font-weight: 300; }
+        a { text-decoration: none; color: var(--accent); transition: var(--transition-fast); }
+        a:hover { color: var(--accent-hover); }
         
-        /* layout & navigasi (sama) */
+        /* layout & navigasi */
         .page-container { position: absolute; top:0; left:0; width:100%; min-height:100vh; opacity:0; visibility:hidden; pointer-events:none; transition: opacity 0.8s, transform 0.8s; transform:translateY(20px); }
         .page-container.active { opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0); position:relative; }
         #page-viewer.active { position:absolute; overflow:hidden; }
-        nav { position:fixed; top:0; left:0; width:100%; padding:1.5rem 5%; display:flex; justify-content:space-between; align-items:center; z-index:100; transition:all 0.6s; background:transparent; }
+        nav { position:fixed; top:0; left:0; width:100%; padding:1.5rem 5%; display:flex; justify-content:space-between; align-items:center; z-index:100; transition:var(--transition-smooth); background:transparent; }
         nav.scrolled { padding:1rem 5%; background:var(--glass-bg); backdrop-filter:blur(12px); border-bottom:1px solid var(--glass-border); }
-        .logo { font-family:var(--font-heading); font-size:1.8rem; font-weight:700; color:#fff; letter-spacing:2px; }
+        .logo { font-family:var(--font-heading); font-size:1.8rem; font-weight:700; color:var(--text-main); letter-spacing:2px; text-transform:uppercase; }
         .logo span { color:var(--accent); }
         .nav-menu { display:flex; gap:2rem; list-style:none; }
-        .nav-btn { background:none; border:none; color:#fff; font-family:var(--font-body); font-size:0.95rem; font-weight:500; cursor:pointer; padding:0.5rem 0; text-transform:uppercase; letter-spacing:1px; position:relative; }
-        .nav-btn::after { content:''; position:absolute; bottom:0; left:0; width:0; height:2px; background:var(--accent); transition:0.6s; }
+        .nav-btn { background:none; border:none; color:var(--text-main); font-family:var(--font-body); font-size:0.95rem; font-weight:500; cursor:pointer; position:relative; padding:0.5rem 0; text-transform:uppercase; letter-spacing:1px; }
+        .nav-btn::after { content:''; position:absolute; bottom:0; left:0; width:0; height:2px; background:var(--accent); transition:var(--transition-smooth); }
         .nav-btn:hover::after, .nav-btn.active::after { width:100%; }
         
-        /* hero & info sections (singkat) */
+        /* hero & info sections (ringkas) */
         .hero { position:relative; height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-        .hero-bg { position:absolute; top:0; left:0; width:100%; height:120%; background:linear-gradient(to bottom, rgba(15,23,42,0.3), var(--primary)), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop') center/cover; z-index:1; }
-        .hero-content { position:relative; z-index:2; text-align:center; }
-        .hero-title { font-size:6rem; text-transform:uppercase; letter-spacing:8px; color:#fff; text-shadow:0 10px 30px rgba(0,0,0,0.5); animation:fadeUp 1s 0.5s forwards; opacity:0; transform:translateY(30px); }
-        .hero-subtitle { font-size:1.5rem; font-weight:300; letter-spacing:4px; color:var(--accent); animation:fadeUp 1s 0.8s forwards; opacity:0; transform:translateY(30px); }
-        .scroll-indicator { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); animation:fadeUp 1s 1.2s forwards; opacity:0; display:flex; flex-direction:column; align-items:center; }
-        .section { padding:8rem 5%; }
+        .hero-bg { position:absolute; top:0; left:0; width:100%; height:120%; background:linear-gradient(to bottom, rgba(15,23,42,0.3), var(--primary)), url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop') center/cover; z-index:1; transform-origin:center; }
+        .hero-content { position:relative; z-index:2; text-align:center; padding:0 20px; max-width:1000px; }
+        .hero-title { font-size:6rem; text-transform:uppercase; letter-spacing:8px; margin-bottom:1rem; color:#fff; text-shadow:0 10px 30px rgba(0,0,0,0.5); opacity:0; transform:translateY(30px); animation:fadeUp 1s 0.5s forwards; }
+        .hero-subtitle { font-size:1.5rem; font-weight:300; letter-spacing:4px; color:var(--accent); opacity:0; transform:translateY(30px); animation:fadeUp 1s 0.8s forwards; }
+        .scroll-indicator { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); z-index:2; display:flex; flex-direction:column; align-items:center; opacity:0; animation:fadeUp 1s 1.2s forwards; }
+        .scroll-mouse { width:30px; height:50px; border:2px solid rgba(255,255,255,0.5); border-radius:15px; position:relative; margin-bottom:10px; }
+        .scroll-wheel { width:4px; height:8px; background:var(--accent); border-radius:2px; position:absolute; top:8px; left:50%; transform:translateX(-50%); animation:scrollWheel 2s infinite; }
+        .section { padding:8rem 5%; position:relative; }
         .container { max-width:1200px; margin:0 auto; }
         .section-header { text-align:center; margin-bottom:5rem; }
-        .section-title { font-size:3rem; display:inline-block; padding-bottom:1rem; position:relative; }
+        .section-title { font-size:3rem; color:var(--text-main); position:relative; display:inline-block; padding-bottom:1rem; }
         .section-title::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:60px; height:3px; background:var(--accent); }
-        .card { background:var(--secondary); border:1px solid var(--glass-border); border-radius:20px; padding:2rem; transition:0.6s; }
-        .card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:2rem; }
-        .profile-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:2rem; }
-        .btn-ig { background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); padding:8px 20px; border-radius:30px; color:white; display:inline-block; }
-        footer { background:#080c16; text-align:center; padding:2rem; }
-        .reveal { opacity:0; transform:translateY(60px); transition:1s; }
+        .card-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(350px, 1fr)); gap:2.5rem; }
+        .card { background:var(--secondary); border:1px solid var(--glass-border); border-radius:20px; padding:3rem 2rem; position:relative; overflow:hidden; transition:var(--transition-smooth); z-index:1; }
+        .card::before { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background:radial-gradient(circle at top right, rgba(212,175,55,0.1), transparent 50%); z-index:-1; opacity:0; transition:var(--transition-smooth); }
+        .card:hover { transform:translateY(-10px); border-color:rgba(212,175,55,0.3); box-shadow:0 20px 40px rgba(0,0,0,0.4); }
+        .card-icon { font-size:2.5rem; margin-bottom:1.5rem; display:inline-block; background:linear-gradient(135deg, var(--accent), #fff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .card-title { font-size:1.4rem; margin-bottom:1rem; color:#fff; }
+        .card-text { font-size:1rem; color:var(--text-muted); line-height:1.8; }
+        .list-styled { list-style:none; margin-top:1.5rem; }
+        .list-styled li { position:relative; padding-left:1.5rem; margin-bottom:0.8rem; color:var(--text-muted); font-size:0.95rem; }
+        .list-styled li::before { content:'▹'; position:absolute; left:0; color:var(--accent); font-weight:bold; }
+        .highlight-box { background:rgba(212,175,55,0.05); border-left:4px solid var(--accent); padding:1.5rem; border-radius:0 10px 10px 0; margin-top:2rem; font-style:italic; }
+        .profile-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:3rem; }
+        .profile-card { background:var(--secondary); border-radius:20px; overflow:hidden; text-align:center; border:1px solid var(--glass-border); transition:var(--transition-smooth); }
+        .profile-card:hover { transform:translateY(-15px); box-shadow:0 25px 50px rgba(0,0,0,0.5); border-color:var(--accent); }
+        .profile-img-wrap { width:100%; height:280px; position:relative; overflow:hidden; background:linear-gradient(45deg, #1e293b, #0f172a); }
+        .profile-placeholder { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:5rem; opacity:0.5; filter:grayscale(1); transition:var(--transition-fast); }
+        .profile-card:hover .profile-placeholder { filter:grayscale(0); transform:translate(-50%, -50%) scale(1.1); opacity:1; }
+        .profile-info { padding:2.5rem 2rem; position:relative; }
+        .profile-name { font-size:1.5rem; margin-bottom:0.5rem; color:#fff; }
+        .profile-role { font-size:0.9rem; color:var(--accent); text-transform:uppercase; letter-spacing:2px; margin-bottom:1.5rem; display:block; }
+        .btn-ig { display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 30px; border-radius:30px; background:linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color:white; font-weight:600; font-size:0.9rem; text-transform:uppercase; letter-spacing:1px; transition:var(--transition-fast); box-shadow:0 4px 15px rgba(220,39,67,0.3); }
+        .btn-ig:hover { transform:scale(1.05); box-shadow:0 8px 25px rgba(220,39,67,0.5); }
+        footer { background:#080c16; padding:4rem 5%; text-align:center; border-top:1px solid var(--glass-border); }
+        .footer-text { font-size:0.9rem; letter-spacing:1px; }
+        .reveal { opacity:0; transform:translateY(60px); transition:all 1s cubic-bezier(0.16,1,0.3,1); }
         .reveal.active { opacity:1; transform:translateY(0); }
-        @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
         
-        /* 3D viewer UI */
-        #canvas-container { width:100vw; height:100vh; display:block; }
-        .viewer-ui { position:absolute; z-index:50; background:var(--glass-bg); backdrop-filter:blur(16px); border:1px solid var(--glass-border); border-radius:16px; padding:1rem; }
-        .mode-selector { top:100px; left:30px; display:flex; flex-direction:column; gap:0.5rem; width:220px; }
-        .mode-btn { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); color:#fff; padding:0.8rem; border-radius:12px; font-size:0.85rem; font-weight:600; text-transform:uppercase; cursor:pointer; transition:0.3s; display:flex; justify-content:space-between; align-items:center; }
-        .mode-btn::before { content:''; width:8px; height:8px; border-radius:50%; background:#475569; }
+        /* 3D Viewer UI */
+        #page-viewer { background:#05080f; }
+        #canvas-container { width:100vw; height:100vh; display:block; outline:none; }
+        .viewer-ui { position:absolute; z-index:50; background:var(--glass-bg); backdrop-filter:blur(16px); border:1px solid var(--glass-border); border-radius:16px; box-shadow:var(--glass-shadow); padding:1.5rem; }
+        .mode-selector { top:100px; left:30px; display:flex; flex-direction:column; gap:0.8rem; width:220px; }
+        .mode-btn { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); color:var(--text-main); padding:1rem; border-radius:12px; font-family:var(--font-body); font-size:0.85rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; transition:var(--transition-fast); display:flex; align-items:center; justify-content:space-between; }
+        .mode-btn::before { content:''; width:8px; height:8px; border-radius:50%; background:#475569; transition:var(--transition-fast); }
+        .mode-btn:hover { background:rgba(255,255,255,0.08); transform:translateX(5px); }
         .mode-btn.active { background:rgba(212,175,55,0.1); border-color:rgba(212,175,55,0.3); color:var(--accent); }
-        .mode-btn.active::before { background:var(--accent); }
-        #edit-mode-btn { margin-top:10px; border-color:var(--accent); }
-        .legend-panel { top:100px; right:30px; width:260px; }
-        .legend-header { font-family:var(--font-heading); font-size:1.2rem; border-bottom:1px solid var(--glass-border); margin-bottom:1rem; }
-        .legend-list { list-style:none; }
-        .legend-item { display:flex; align-items:center; gap:10px; font-size:0.85rem; margin-bottom:0.8rem; }
-        .legend-line { width:24px; height:4px; background:red; }
-        .morph-scale { bottom:40px; left:50%; transform:translateX(-50%); display:none; gap:1rem; background:var(--glass-bg); border-radius:20px; padding:0.8rem 2rem; }
-        #tooltip { position:absolute; background:rgba(15,23,42,0.9); padding:6px 12px; border-radius:8px; font-size:0.8rem; pointer-events:none; display:none; border-left:3px solid var(--accent); white-space:nowrap; z-index:100; }
-        .overlay-screen { position:absolute; top:0; left:0; width:100%; height:100%; background:var(--primary); z-index:999; display:flex; justify-content:center; align-items:center; flex-direction:column; transition:0.5s; }
-        .loader-ring { width:60px; height:60px; border:3px solid transparent; border-top-color:var(--accent); border-radius:50%; animation:spin 1s infinite; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-        .error-box { background:rgba(239,68,68,0.1); border:1px solid var(--danger); padding:1rem; border-radius:12px; text-align:center; }
-        #viewer-360 { position:absolute; top:0; left:0; width:100%; height:100%; background:#000; z-index:200; opacity:0; visibility:hidden; transition:0.5s; }
+        .mode-btn.active::before { background:var(--accent); box-shadow:0 0 10px var(--accent); }
+        #edit-mode-btn { margin-top:8px; border-color:var(--accent); transition:0.3s; }
+        #edit-mode-btn.edit-active { background:rgba(212,175,55,0.2); border-color:var(--accent); color:var(--accent); }
+        .legend-panel { top:100px; right:30px; width:280px; }
+        .legend-header { font-family:var(--font-heading); font-size:1.2rem; margin-bottom:1rem; padding-bottom:0.8rem; border-bottom:1px solid var(--glass-border); color:#fff; }
+        .legend-list { list-style:none; display:flex; flex-direction:column; gap:1rem; }
+        .legend-item { display:flex; align-items:center; font-size:0.85rem; color:var(--text-muted); }
+        .legend-line { width:24px; height:4px; margin-right:15px; border-radius:2px; flex-shrink:0; }
+        .legend-circle { width:20px; height:20px; border-radius:50%; border:3px solid; margin-right:17px; margin-left:2px; flex-shrink:0; background:transparent; }
+        .legend-pin { font-size:1.2rem; margin-right:15px; width:24px; text-align:center; }
+        .morph-scale { bottom:40px; left:50%; transform:translateX(-50%); display:none; flex-direction:row; align-items:center; justify-content:center; gap:2rem; padding:1rem 2.5rem; width:auto; max-width:90vw; background:var(--glass-bg); backdrop-filter:blur(16px); border-radius:16px; }
+        .scale-item { display:flex; flex-direction:column; align-items:center; gap:8px; }
+        .scale-box { width:50px; height:8px; border-radius:4px; }
+        .scale-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#cbd5e1; font-weight:500; }
+        #tooltip { position:absolute; background:rgba(15,23,42,0.9); backdrop-filter:blur(4px); color:#fff; padding:10px 15px; border-radius:8px; font-size:0.85rem; pointer-events:none; display:none; z-index:50; transform:translate(-50%, -150%); border:1px solid var(--accent); box-shadow:0 4px 15px rgba(0,0,0,0.5); font-weight:500; white-space:nowrap; }
+        #tooltip::after { content:''; position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); border-width:6px 6px 0; border-style:solid; border-color:var(--accent) transparent transparent transparent; }
+        .overlay-screen { position:absolute; top:0; left:0; width:100%; height:100%; background:var(--primary); z-index:999; display:flex; flex-direction:column; justify-content:center; align-items:center; transition:opacity 0.5s; }
+        .loader-ring { width:80px; height:80px; border:3px solid transparent; border-top-color:var(--accent); border-right-color:var(--accent); border-radius:50%; animation:spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin-bottom:2rem; }
+        @keyframes spin { 100% { transform:rotate(360deg); } }
+        .progress-wrapper { width:300px; }
+        .progress-bar-bg { width:100%; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden; }
+        .progress-bar-fill { width:0%; height:100%; background:var(--accent); transition:width 0.3s; box-shadow:0 0 10px var(--accent); }
+        .loading-text { margin-top:1.5rem; font-size:0.85rem; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); }
+        .loading-percent { font-family:var(--font-heading); font-size:2rem; color:#fff; margin-top:0.5rem; }
+        .error-box { background:rgba(239,68,68,0.1); border:1px solid var(--danger); padding:2rem; border-radius:12px; text-align:center; max-width:500px; display:none; }
+        .error-icon { font-size:3rem; color:var(--danger); margin-bottom:1rem; }
+        .error-title { color:#fff; font-size:1.2rem; margin-bottom:1rem; }
+        .error-desc { color:var(--text-muted); font-size:0.9rem; line-height:1.6; }
+        #viewer-360 { position:absolute; top:0; left:0; width:100%; height:100%; background:#000; z-index:150; opacity:0; visibility:hidden; transition:var(--transition-smooth); }
         #viewer-360.active { opacity:1; visibility:visible; }
-        .btn-close-360 { position:absolute; top:20px; right:20px; background:rgba(0,0,0,0.6); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:210; }
-        .popup-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:300; opacity:0; visibility:hidden; display:flex; align-items:center; justify-content:center; transition:0.3s; }
+        #canvas-360 { width:100%; height:100%; display:block; }
+        .btn-close-360 { position:absolute; top:30px; right:30px; z-index:160; background:rgba(0,0,0,0.5); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.2); color:#fff; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; cursor:pointer; transition:var(--transition-fast); }
+        .btn-close-360:hover { background:var(--danger); transform:rotate(90deg); border-color:var(--danger); }
+        .hint-360 { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); z-index:160; background:rgba(0,0,0,0.6); padding:12px 24px; border-radius:30px; color:#fff; font-size:0.9rem; pointer-events:none; display:flex; align-items:center; gap:10px; border:1px solid rgba(255,255,255,0.1); }
+        .popup-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:200; opacity:0; visibility:hidden; transition:var(--transition-fast); display:flex; align-items:center; justify-content:center; }
         .popup-overlay.active { opacity:1; visibility:visible; }
-        .popup-content { background:var(--secondary); width:90%; max-width:700px; border-radius:24px; overflow:hidden; max-height:90vh; }
-        .popup-hero { height:200px; background:#0f172a; }
-        .popup-img { width:100%; height:100%; object-fit:cover; }
-        .popup-body { padding:2rem; }
-        @media (max-width:768px) { .hero-title { font-size:3rem; } .mode-selector { top:80px; left:10px; width:auto; flex-direction:row; } }
+        .popup-content { background:var(--secondary); width:90%; max-width:800px; border-radius:24px; overflow:hidden; border:1px solid var(--glass-border); box-shadow:0 25px 50px rgba(0,0,0,0.5); transform:scale(0.9) translateY(20px); transition:var(--transition-smooth); display:flex; flex-direction:column; max-height:90vh; }
+        .popup-overlay.active .popup-content { transform:scale(1) translateY(0); }
+        .popup-hero { height:300px; position:relative; background:#0f172a; overflow:hidden; }
+        .popup-img { width:100%; height:100%; object-fit:cover; opacity:0.7; transition:transform 10s linear; }
+        .popup-overlay.active .popup-img { transform:scale(1.1); }
+        .btn-close-popup { position:absolute; top:20px; right:20px; width:40px; height:40px; background:rgba(0,0,0,0.5); border-radius:50%; color:white; border:1px solid rgba(255,255,255,0.2); cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center; transition:var(--transition-fast); z-index:10; }
+        .btn-close-popup:hover { background:var(--accent); }
+        .popup-body { padding:3rem; overflow-y:auto; }
+        .popup-tag { display:inline-block; padding:5px 15px; background:rgba(212,175,55,0.1); color:var(--accent); border-radius:20px; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:1rem; }
+        .popup-title { font-size:2.5rem; margin-bottom:1.5rem; color:#fff; }
+        .popup-desc { font-size:1.05rem; line-height:1.8; color:#cbd5e1; }
+        @media (max-width:768px) {
+            .hero-title { font-size:3.5rem; }
+            .section { padding:5rem 5%; }
+            .mode-selector { top:80px; left:15px; width:auto; flex-direction:row; overflow-x:auto; right:15px; }
+            .legend-panel { top:auto; bottom:20px; right:15px; width:calc(100% - 30px); }
+            .popup-body { padding:1.5rem; }
+        }
+        @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+        @keyframes scrollWheel { 0% { top:8px; opacity:1; } 100% { top:24px; opacity:0; } }
     </style>
 </head>
 <body>
@@ -105,17 +178,18 @@
     </ul>
 </nav>
 
-<!-- PAGE INFO (singkat agar tidak terlalu panjang) -->
 <div id="page-info" class="page-container active">
-    <section class="hero"><div class="hero-bg"></div><div class="hero-content"><h1 class="hero-title">Gunung Betung</h1><p class="hero-subtitle">Eksplorasi Geologi & Edit Hotspot</p></div><div class="scroll-indicator"><div class="scroll-mouse"><div class="scroll-wheel"></div></div></div></section>
-    <section class="section"><div class="container"><div class="section-header"><h2 class="section-title">Tentang Fitur Edit</h2></div><div class="card"><p>Klik tombol <strong>Edit Titik</strong> di viewer 3D, lalu klik sebuah titik (akan terpilih), kemudian klik di permukaan gunung untuk memindahkannya. Setelah selesai, klik Selesai Edit. Semua posisi baru akan tersimpan.</p></div></div></section>
-    <footer><p>&copy; 2025 Gunung Betung - Interactive 3D</p></footer>
+    <section class="hero"><div class="hero-bg"></div><div class="hero-content"><h1 class="hero-title">Gunung Betung</h1><p class="hero-subtitle">Eksplorasi Geologi & Edit Hotspot</p></div><div class="scroll-indicator"><div class="scroll-mouse"><div class="scroll-wheel"></div></div><span>Scroll Explore</span></div></section>
+    <section class="section"><div class="container reveal"><div class="section-header"><h2 class="section-title">Keterbentukan Gunung Betung</h2></div><div class="card" style="max-width:900px; margin:0 auto;"><p class="card-text">Gunung Betung terbentuk dari proses alam yang terjadi sangat lama di dalam bumi. Gunung ini masih terlihat jelas bentuknya seperti kerucut, menandakan bahwa jejak pembentukannya masih terjaga hingga sekarang. ...</p></div></div></section>
+    <section class="section" style="background:rgba(255,255,255,0.02);"><div class="container"><div class="section-header reveal"><h2 class="section-title">Geologi Gunung Betung</h2></div><div class="card-grid"><div class="card reveal"><div class="card-icon">🌊</div><h3 class="card-title">Pola Aliran Sungai</h3><p class="card-text">Pola aliran sungai di sekitar Gunung Betung adalah radial.</p></div><div class="card reveal"><div class="card-icon">📏</div><h3 class="card-title">Pola Kelurusan</h3><p class="card-text">Pola kelurusan cenderung baratlaut–tenggara (NW–SE).</p></div></div></div></section>
+    <section class="section"><div class="container"><div class="section-header reveal"><h2 class="section-title">Potensi Pariwisata</h2></div><div class="card-grid"><div class="card reveal"><div class="card-icon">🌄</div><h3 class="card-title">Wisata Pendakian</h3><p class="card-text">Gunung Betung ramah bagi pendaki pemula.</p></div><div class="card reveal"><div class="card-icon">💧</div><h3 class="card-title">Wisata Air Terjun</h3><p class="card-text">Terdapat banyak air terjun di lerengnya.</p></div></div></div></section>
+    <section class="section" style="background:rgba(255,255,255,0.02);"><div class="container"><div class="section-header reveal"><h2 class="section-title">Tim Pengembang</h2></div><div class="profile-grid"><div class="profile-card reveal"><div class="profile-img-wrap"><div class="profile-placeholder">👨‍💻</div></div><div class="profile-info"><h3 class="profile-name">Christoper Putra Pakpahan</h3><span class="profile-role">Developer & Geologist</span><a href="https://www.instagram.com/choper_risto" target="_blank" class="btn-ig">Instagram</a></div></div><div class="profile-card reveal"><div class="profile-img-wrap"><div class="profile-placeholder">👨‍💻</div></div><div class="profile-info"><h3 class="profile-name">Abdul Muarifudin</h3><span class="profile-role">UI/UX & Data Analyst</span><a href="https://www.instagram.com/d.dinkkk009" target="_blank" class="btn-ig">Instagram</a></div></div><div class="profile-card reveal"><div class="profile-img-wrap"><div class="profile-placeholder">👩‍💻</div></div><div class="profile-info"><h3 class="profile-name">Dipa Anggraini</h3><span class="profile-role">GIS & 3D Modeler</span><a href="https://www.instagram.com/_dva_rain" target="_blank" class="btn-ig">Instagram</a></div></div></div></div></section>
+    <footer><div class="container"><p class="footer-text">&copy; 2025 Gunung Betung 3D Explorer - Dengan Fitur Edit Hotspot</p></div></footer>
 </div>
 
-<!-- PAGE VIEWER 3D -->
 <div id="page-viewer" class="page-container">
-    <div id="loader-ui" class="overlay-screen"><div class="loader-ring"></div><div class="loading-percent" id="load-percent">0%</div><div class="loading-text">Memuat model 3D...</div></div>
-    <div id="error-ui" class="overlay-screen" style="display:none"><div class="error-box"><h3>⚠️ Gagal Memuat GLB</h3><p>Pastikan file betung_satellite.glb, betung_geology.glb, betung_morphometry.glb tersedia.</p><button onclick="engine3D.loadModel(engine3D.currentMode)">Coba Lagi</button></div></div>
+    <div id="loader-ui" class="overlay-screen"><div class="loader-ring"></div><div class="progress-wrapper"><div class="progress-bar-bg"><div class="progress-bar-fill" id="load-bar"></div></div></div><div class="loading-percent" id="load-percent">0%</div><div class="loading-text" id="load-text">Menginisialisasi Engine 3D...</div></div>
+    <div id="error-ui" class="overlay-screen" style="display:none;"><div class="error-box"><div class="error-icon">⚠️</div><h3 class="error-title">Gagal Memuat Model 3D</h3><p class="error-desc">Pastikan file betung_satellite.glb, betung_geology.glb, atau betung_morphometry.glb tersedia.</p><button onclick="engine3D.loadModel(engine3D.currentMode)" style="margin-top:1rem; padding:8px 16px; background:var(--accent); border:none; border-radius:6px; cursor:pointer;">Coba Lagi</button></div></div>
     
     <div class="viewer-ui mode-selector">
         <button class="mode-btn active" data-mode="SATELIT">Mode Satelit</button>
@@ -123,20 +197,19 @@
         <button class="mode-btn" data-mode="MORFOMETRI">Mode Morfometri</button>
         <button class="mode-btn" id="edit-mode-btn">✏️ Edit Titik</button>
     </div>
-    <div class="viewer-ui legend-panel" id="legend-panel"><h3 class="legend-header">Legenda</h3><ul class="legend-list" id="legend-list"></ul></div>
-    <div class="viewer-ui morph-scale" id="morph-scale"><div class="scale-item"><div class="scale-box" style="background:#00ff00"></div><span>Datar</span></div><div class="scale-item"><div class="scale-box" style="background:#ffa500"></div><span>Curam</span></div></div>
+    <div class="viewer-ui legend-panel" id="legend-panel"><h3 class="legend-header" id="legend-title">Legenda Satelit</h3><ul class="legend-list" id="legend-list"></ul></div>
+    <div class="viewer-ui morph-scale" id="morph-scale"><div class="scale-item"><div class="scale-box" style="background:#00ff00;"></div><span class="scale-label">Datar</span></div><div class="scale-item"><div class="scale-box" style="background:#ffff00;"></div><span class="scale-label">Landai</span></div><div class="scale-item"><div class="scale-box" style="background:#ffa500;"></div><span class="scale-label">Agak Curam</span></div><div class="scale-item"><div class="scale-box" style="background:#ff0000;"></div><span class="scale-label">Curam</span></div><div class="scale-item"><div class="scale-box" style="background:#800080;"></div><span class="scale-label">Sgt Curam</span></div></div>
     <div id="tooltip"></div>
     <div id="canvas-container"></div>
-    
-    <div id="viewer-360"><button class="btn-close-360" onclick="engine3D.close360Viewer()">✕</button><div class="hint-360">Drag untuk melihat 360°</div><div id="canvas-360"></div></div>
-    <div class="popup-overlay" id="detail-popup"><div class="popup-content"><div class="popup-hero"><img id="popup-img" class="popup-img" src=""><button class="btn-close-popup" onclick="engine3D.closePopup()">✕</button></div><div class="popup-body"><span class="popup-tag" id="popup-tag"></span><h2 id="popup-title"></h2><div id="popup-desc"></div></div></div></div>
+    <div id="viewer-360"><button class="btn-close-360" onclick="engine3D.close360Viewer()">✕</button><div class="hint-360"><span>🖐️</span> Drag untuk melihat sekeliling. Klik hotspot untuk detail.</div><div id="canvas-360"></div></div>
+    <div class="popup-overlay" id="detail-popup"><div class="popup-content"><div class="popup-hero"><img src="https://images.unsplash.com/photo-1605333556488-82db37b2d56a?auto=format&fit=crop&q=80&w=1000" class="popup-img" id="popup-img"><button class="btn-close-popup" onclick="engine3D.closePopup()">✕</button></div><div class="popup-body"><span class="popup-tag" id="popup-tag">Analisis Geologi</span><h2 class="popup-title" id="popup-title">Judul Hotspot</h2><div class="popup-desc" id="popup-desc">Detail lengkap akan dimuat di sini.</div></div></div></div>
 </div>
 
 <script>
-    // ======================== DATA HOTSPOT AWAL (16 titik lapangan) ========================
+    // ======================== DATA HOTSPOT AWAL (16 titik) ========================
     let HOTSPOT_DATA = [
-        { id: 1, relX: 0.0, relY: 1.0, relZ: 0.0, title: "Puncak Gunung Betung", tag: "Morfologi", desc: "<p>Titik tertinggi, view 360°.</p>" },
-        { id: 2, relX: 1.0, relY: 0.8, relZ: -1.0, title: "Pos 4 pendakian", tag: "Pendakian", desc: "<p>Area peristirahatan.</p>" },
+        { id: 1, relX: 0.0, relY: 1.0,  relZ: 0.0,  title: "Puncak Gunung Betung", tag: "Morfologi", desc: "<p>Titik tertinggi gunung. Pemandangan 360°.</p>" },
+        { id: 2, relX: 1.0, relY: 0.8,  relZ: -1.0, title: "Pos 4 pendakian", tag: "Pendakian", desc: "<p>Pos peristirahatan.</p>" },
         { id: 3, relX: -1.0, relY: 0.6, relZ: -2.0, title: "Pos 2 pendakian", tag: "Pendakian", desc: "<p>Pos 2.</p>" },
         { id: 4, relX: -3.0, relY: 0.4, relZ: -4.0, title: "Poin 1 (bongkah batuan beku)", tag: "Litologi", desc: "<p>Andesit porfiritik.</p>" },
         { id: 5, relX: 0.5, relY: 1.2, relZ: 0.5, title: "Pos 5 pendakian (litologi lapili)", tag: "Litologi", desc: "<p>Tuf lapili.</p>" },
@@ -144,55 +217,82 @@
         { id: 7, relX: -2.0, relY: 0.5, relZ: -3.0, title: "Pintu rimba", tag: "Akses", desc: "<p>Gerbang Tahura.</p>" },
         { id: 8, relX: -2.2, relY: 0.5, relZ: -3.5, title: "Campground", tag: "Fasilitas", desc: "<p>Area camping.</p>" },
         { id: 9, relX: -1.5, relY: 0.6, relZ: -2.0, title: "Pos 1 pendakian", tag: "Pendakian", desc: "<p>Pos awal.</p>" },
-        { id: 10, relX: -0.5, relY: 0.9, relZ: -1.0, title: "Pos 3 pendakian (tuf lapili)", tag: "Litologi", desc: "<p>Tuf lapili.</p>" },
-        { id: 11, relX: -1.8, relY: 0.4, relZ: -2.5, title: "Sungai sebelum Pos 1", tag: "Hidrologi", desc: "<p>Aliran sungai.</p>" },
-        { id: 12, relX: 0.3, relY: 1.1, relZ: 0.3, title: "Bongkah berkekar gerus", tag: "Struktur", desc: "<p>Kekar gerus.</p>" },
-        { id: 13, relX: 0.4, relY: 1.1, relZ: 0.2, title: "Litologi tuf lapili", tag: "Litologi", desc: "<p>Tuf lapili dekat puncak.</p>" },
-        { id: 14, relX: -2.5, relY: 0.4, relZ: -3.0, title: "Pertigaan air terjun", tag: "Akses", desc: "<p>Persimpangan.</p>" },
-        { id: 15, relX: -2.3, relY: 0.3, relZ: -3.2, title: "Air terjun (andesit)", tag: "Geowisata", desc: "<p>Air terjun 15m.</p>" },
-        { id: 16, relX: -5.0, relY: 0.2, relZ: -6.0, title: "Pos pendaftaran", tag: "Administrasi", desc: "<p>Lokasi daftar.</p>" }
+        { id: 10,relX: -0.5, relY: 0.9, relZ: -1.0, title: "Pos 3 pendakian (litologi tuf lapili)", tag: "Litologi", desc: "<p>Tuf lapili.</p>" },
+        { id: 11,relX: -1.8, relY: 0.4, relZ: -2.5, title: "Sungai sebelum Pos 1", tag: "Hidrologi", desc: "<p>Aliran sungai.</p>" },
+        { id: 12,relX: 0.3, relY: 1.1, relZ: 0.3, title: "Bongkah berkekar gerus", tag: "Struktur", desc: "<p>Kekar gerus.</p>" },
+        { id: 13,relX: 0.4, relY: 1.1, relZ: 0.2, title: "Litologi tuf lapili", tag: "Litologi", desc: "<p>Tuf lapili dekat puncak.</p>" },
+        { id: 14,relX: -2.5, relY: 0.4, relZ: -3.0, title: "Pertigaan air terjun", tag: "Akses", desc: "<p>Persimpangan.</p>" },
+        { id: 15,relX: -2.3, relY: 0.3, relZ: -3.2, title: "Air terjun (litologi andesit)", tag: "Geowisata", desc: "<p>Air terjun 15m.</p>" },
+        { id: 16,relX: -5.0, relY: 0.2, relZ: -6.0, title: "Pos pendaftaran", tag: "Administrasi", desc: "<p>Lokasi daftar.</p>" }
     ];
 
-    // UI legends (singkat)
     const UI_LEGENDS = {
-        'SATELIT': { title: 'Legenda Satelit', items: [{ type: 'line', color: '#ff0000', label: 'Jalur Track' }, { type: 'line', color: '#0000ff', label: 'Sungai' }, { type: 'pin', icon: '📍', label: 'Hotspot' }] },
-        'GEOLOGI': { title: 'Legenda Geologi', items: [{ type: 'circle', color: '#ff0000', label: 'Erupsi' }, { type: 'line', color: '#ff0000', label: 'Kelurusan NW-SE' }] }
+        'SATELIT': { title: 'Legenda Satelit', items: [ { type: 'line', color: '#ff0000', label: 'Jalur Track' }, { type: 'line', color: '#0000ff', label: 'Pola Aliran Sungai' }, { type: 'pin', icon: '📍', label: 'Lokasi Pengamatan' } ] },
+        'GEOLOGI': { title: 'Legenda Geologi', items: [ { type: 'circle', color: '#ff0000', label: 'Pusat Erupsi' }, { type: 'circle', color: '#555555', label: 'Kawah' }, { type: 'line', color: '#ff0000', label: 'Kelurusan (NW-SE)' } ] }
     };
 
     // ======================== ENGINE 3D DENGAN FITUR EDIT ========================
     const engine3D = {
-        initialized: false, currentMode: 'SATELIT',
+        initialized: false,
+        currentMode: 'SATELIT',
         container: null, scene: null, camera: null, renderer: null, controls: null, loader: null,
         modelGroup: null, hotspotGroup: null, geoOverlayGroup: null,
         raycaster: new THREE.Raycaster(), mouse: new THREE.Vector2(),
         boundingBox: new THREE.Box3(), centerOffset: new THREE.Vector3(), maxDim: 1,
-        viewer360Active: false, scene360: null, camera360: null, selectedHotspot: null, editMode: false,
-        
+        viewer360Active: false, scene360: null, camera360: null, sphere360: null, hotspot360Group: null,
+        // Fitur edit
+        editMode: false,
+        selectedHotspot: null,
+
         initScene: function() {
             this.container = document.getElementById('canvas-container');
-            this.scene = new THREE.Scene(); this.scene.background = new THREE.Color(0x05080f); this.scene.fog = new THREE.FogExp2(0x05080f, 0.005);
-            this.camera = new THREE.PerspectiveCamera(45, this.container.clientWidth/this.container.clientHeight, 0.1, 5000);
+            this.scene = new THREE.Scene();
+            this.scene.background = new THREE.Color(0x05080f);
+            this.scene.fog = new THREE.FogExp2(0x05080f, 0.005);
+            this.camera = new THREE.PerspectiveCamera(45, this.container.clientWidth / this.container.clientHeight, 0.1, 5000);
             this.camera.position.set(0, 100, 150);
-            this.renderer = new THREE.WebGLRenderer({ antialias: true });
+            this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
             this.renderer.shadowMap.enabled = true;
+            this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            this.renderer.outputEncoding = THREE.sRGBEncoding;
+            this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
             this.container.appendChild(this.renderer.domElement);
             this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-            this.controls.enableDamping = true; this.controls.maxPolarAngle = Math.PI/2 - 0.05;
-            // lighting
-            const ambient = new THREE.AmbientLight(0x404060); this.scene.add(ambient);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1); dirLight.position.set(50,100,50); dirLight.castShadow = true; this.scene.add(dirLight);
-            const backLight = new THREE.DirectionalLight(0x88aaff, 0.5); backLight.position.set(-30,50,-40); this.scene.add(backLight);
-            this.modelGroup = new THREE.Group(); this.scene.add(this.modelGroup);
-            this.hotspotGroup = new THREE.Group(); this.scene.add(this.hotspotGroup);
-            this.geoOverlayGroup = new THREE.Group(); this.scene.add(this.geoOverlayGroup);
+            this.controls.enableDamping = true;
+            this.controls.dampingFactor = 0.05;
+            this.controls.maxPolarAngle = Math.PI / 2 - 0.05;
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            this.scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(100, 200, 50);
+            dirLight.castShadow = true;
+            dirLight.shadow.camera.top = 100;
+            dirLight.shadow.camera.bottom = -100;
+            dirLight.shadow.camera.left = -100;
+            dirLight.shadow.camera.right = 100;
+            dirLight.shadow.bias = -0.001;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            this.scene.add(dirLight);
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4);
+            hemiLight.position.set(0, 200, 0);
+            this.scene.add(hemiLight);
+            // Groups
+            this.modelGroup = new THREE.Group();
+            this.scene.add(this.modelGroup);
+            this.hotspotGroup = new THREE.Group();
+            this.scene.add(this.hotspotGroup);
+            this.geoOverlayGroup = new THREE.Group();
+            this.scene.add(this.geoOverlayGroup);
             this.loader = new THREE.GLTFLoader();
-            window.addEventListener('resize', ()=> this.onWindowResize());
-            this.renderer.domElement.addEventListener('mousemove', (e)=> this.onMouseMove(e));
-            this.renderer.domElement.addEventListener('click', (e)=> this.handleRaycast(e));
-            
-            // tombol mode edit
-            document.getElementById('edit-mode-btn').addEventListener('click', () => { this.toggleEditMode(); });
+            // Events
+            window.addEventListener('resize', this.onWindowResize.bind(this));
+            this.renderer.domElement.addEventListener('mousemove', this.onMouseMove.bind(this));
+            this.renderer.domElement.addEventListener('click', this.handleRaycast.bind(this));
+            // Mode buttons
             document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.classList.remove('active'));
@@ -200,25 +300,28 @@
                     this.loadModel(btn.getAttribute('data-mode'));
                 });
             });
+            // Tombol edit
+            const editBtn = document.getElementById('edit-mode-btn');
+            editBtn.addEventListener('click', () => this.toggleEditMode());
             this.initialized = true;
             this.loadModel('SATELIT');
             this.animate();
         },
-        
+
         toggleEditMode: function() {
             this.editMode = !this.editMode;
             const btn = document.getElementById('edit-mode-btn');
             if(this.editMode) {
-                btn.style.background = 'rgba(212,175,55,0.3)';
+                btn.classList.add('edit-active');
                 btn.innerHTML = '✅ Selesai Edit';
+                // Reset pilihan sebelumnya
                 if(this.selectedHotspot) {
                     this.selectedHotspot.children[0].material.emissiveIntensity = 0.5;
                     this.selectedHotspot = null;
                 }
-                // ubah cursor
                 this.renderer.domElement.style.cursor = 'crosshair';
             } else {
-                btn.style.background = '';
+                btn.classList.remove('edit-active');
                 btn.innerHTML = '✏️ Edit Titik';
                 this.renderer.domElement.style.cursor = 'default';
                 if(this.selectedHotspot) {
@@ -227,22 +330,26 @@
                 }
             }
         },
-        
+
         loadModel: function(mode) {
             this.currentMode = mode;
             this.showUIError(false);
-            this.showLoading(true, `Memuat ${mode}.glb ...`);
+            this.showLoading(true, `Memuat file: betung_${mode.toLowerCase()}.glb...`);
             this.updateLegendUI(mode);
-            let filename = mode === 'SATELIT' ? 'betung_satellite.glb' : (mode === 'GEOLOGI' ? 'betung_geology.glb' : 'betung_morphometry.glb');
+            let filename = '';
+            if(mode === 'SATELIT') filename = 'betung_satellite.glb';
+            else if(mode === 'GEOLOGI') filename = 'betung_geology.glb';
+            else if(mode === 'MORFOMETRI') filename = 'betung_morphometry.glb';
             this.disposeModel();
             this.loader.load(filename, (gltf) => {
                 const model = gltf.scene;
-                model.traverse(node => { if(node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
+                model.traverse((node) => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
                 this.boundingBox.setFromObject(model);
-                const size = new THREE.Vector3(); this.boundingBox.getSize(size);
+                const size = new THREE.Vector3();
+                this.boundingBox.getSize(size);
                 this.maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 100 / this.maxDim;
-                model.scale.set(scale,scale,scale);
+                const targetScale = 100 / this.maxDim;
+                model.scale.set(targetScale, targetScale, targetScale);
                 this.boundingBox.setFromObject(model);
                 this.boundingBox.getCenter(this.centerOffset);
                 model.position.x = -this.centerOffset.x;
@@ -252,94 +359,122 @@
                 this.boundingBox.setFromObject(this.modelGroup);
                 this.createHotspots();
                 if(mode === 'GEOLOGI') this.createGeologyOverlays();
-                const boxSize = new THREE.Vector3(); this.boundingBox.getSize(boxSize);
+                const boxSize = new THREE.Vector3();
+                this.boundingBox.getSize(boxSize);
                 this.camera.position.set(0, boxSize.y * 1.5, boxSize.z * 1.5);
                 this.controls.target.set(0, boxSize.y * 0.3, 0);
                 this.controls.update();
                 this.showLoading(false);
             }, (xhr) => {
-                if(xhr.total) { let p = (xhr.loaded/xhr.total)*100; document.getElementById('load-bar')?.setAttribute?.('style',`width:${p}%`); document.getElementById('load-percent').innerText = Math.round(p)+'%'; }
-            }, (err) => { console.error(err); this.showLoading(false); this.showUIError(true); });
+                if (xhr.total > 0) { const percent = (xhr.loaded / xhr.total) * 100; document.getElementById('load-bar').style.width = percent + '%'; document.getElementById('load-percent').innerText = Math.round(percent) + '%'; }
+            }, (error) => { console.error(error); this.showLoading(false); this.showUIError(true); });
         },
-        
-        disposeModel: function() { while(this.modelGroup.children.length) this.modelGroup.remove(this.modelGroup.children[0]); this.hotspotGroup.clear(); this.geoOverlayGroup.clear(); },
-        
+
+        disposeModel: function() {
+            while(this.modelGroup.children.length) this.modelGroup.remove(this.modelGroup.children[0]);
+            this.scene.traverse((object) => { if (object.isMesh && object.parent === null) { object.geometry.dispose(); if (object.material.isMaterial) this.disposeMaterial(object.material); else if (Array.isArray(object.material)) object.material.forEach(mat => this.disposeMaterial(mat)); } });
+            this.hotspotGroup.clear();
+            this.geoOverlayGroup.clear();
+        },
+
+        disposeMaterial: function(material) { material.dispose(); Object.keys(material).forEach(prop => { if (!material[prop]) return; if (material[prop] !== null && typeof material[prop].dispose === 'function') material[prop].dispose(); }); },
+
         createHotspots: function() {
-            const size = new THREE.Vector3(); this.boundingBox.getSize(size);
+            const size = new THREE.Vector3();
+            this.boundingBox.getSize(size);
             const maxD = Math.max(size.x, size.z);
             const yMax = size.y;
-            const sphereGeo = new THREE.SphereGeometry(1.2, 32,32);
-            const baseMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, emissive: 0xff6600, emissiveIntensity: 0.5, metalness:0.7 });
-            const ringGeo = new THREE.TorusGeometry(1.8,0.1,16,32);
-            const ringMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.8 });
-            HOTSPOT_DATA.forEach((data, idx) => {
+            const geoSphere = new THREE.SphereGeometry(1.2, 32, 32);
+            const matSphere = new THREE.MeshStandardMaterial({ color: 0xd4af37, emissive: 0xff8800, emissiveIntensity: 0.5, roughness: 0.2, metalness: 0.8 });
+            const geoRing = new THREE.TorusGeometry(1.8, 0.1, 16, 32);
+            const matRing = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+            HOTSPOT_DATA.forEach((data, index) => {
                 const group = new THREE.Group();
-                const sphere = new THREE.Mesh(sphereGeo, baseMat.clone());
-                const ring = new THREE.Mesh(ringGeo, ringMat.clone());
-                ring.rotation.x = Math.PI/2;
-                group.add(sphere, ring);
-                let posX = data.relX * maxD;
-                let posZ = data.relZ * maxD;
-                const rayOrigin = new THREE.Vector3(posX, this.boundingBox.max.y+10, posZ);
-                const ray = new THREE.Raycaster(rayOrigin, new THREE.Vector3(0,-1,0));
-                const hits = ray.intersectObject(this.modelGroup, true);
+                const sphere = new THREE.Mesh(geoSphere, matSphere.clone());
+                const ring = new THREE.Mesh(geoRing, matRing.clone());
+                ring.rotation.x = Math.PI / 2;
+                group.add(sphere); group.add(ring);
+                const posX = data.relX * maxD;
+                const posZ = data.relZ * maxD;
+                const rayOrigin = new THREE.Vector3(posX, this.boundingBox.max.y + 10, posZ);
+                const rayDir = new THREE.Vector3(0, -1, 0);
+                const downRay = new THREE.Raycaster(rayOrigin, rayDir);
+                const intersects = downRay.intersectObject(this.modelGroup, true);
                 let posY = data.relY * yMax;
-                if(hits.length) posY = hits[0].point.y;
-                group.position.set(posX, posY+1.5, posZ);
-                group.userData = { id: data.id, title: data.title, tag: data.tag, desc: data.desc, originalY: posY+1.5, offset: idx };
-                const hitBox = new THREE.Mesh(new THREE.BoxGeometry(3.5,3.5,3.5), new THREE.MeshBasicMaterial({ visible: false }));
+                if(intersects.length > 0) posY = intersects[0].point.y;
+                group.position.set(posX, posY + 1.5, posZ);
+                group.userData = { id: data.id, title: data.title, tag: data.tag, desc: data.desc, isHotspot: true, originalY: posY + 1.5, offset: index };
+                const hitGeo = new THREE.BoxGeometry(4,4,4);
+                const hitMat = new THREE.MeshBasicMaterial({visible: false});
+                const hitBox = new THREE.Mesh(hitGeo, hitMat);
                 hitBox.userData = group.userData;
                 group.add(hitBox);
                 this.hotspotGroup.add(group);
             });
         },
-        
+
         createGeologyOverlays: function() {
-            const size = new THREE.Vector3(); this.boundingBox.getSize(size);
+            const size = new THREE.Vector3();
+            this.boundingBox.getSize(size);
             const d = Math.max(size.x, size.z);
-            const points = [new THREE.Vector3(-d*0.3, size.y*0.7, -d*0.3), new THREE.Vector3(d*0.3, size.y*0.5, d*0.3)];
+            const yOff = size.y * 0.8;
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xff0000 });
+            const points = [ new THREE.Vector3(-d*0.4, yOff, -d*0.4), new THREE.Vector3(d*0.4, yOff*0.5, d*0.4) ];
             const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-            const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color:0xff0000 }));
+            const line = new THREE.Line(lineGeo, lineMat);
             this.geoOverlayGroup.add(line);
-            const redCircle = new THREE.Mesh(new THREE.TorusGeometry(d*0.08, d*0.005, 16,64), new THREE.MeshBasicMaterial({ color:0xff0000 }));
-            redCircle.rotation.x = Math.PI/2; redCircle.position.set(0, size.y*0.95,0);
+            const geoRed = new THREE.TorusGeometry(d*0.08, d*0.005, 16, 64);
+            const matRed = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const redCircle = new THREE.Mesh(geoRed, matRed);
+            redCircle.rotation.x = Math.PI / 2;
+            redCircle.position.set(0, size.y * 0.95, 0);
             this.geoOverlayGroup.add(redCircle);
+            const geoGray = new THREE.TorusGeometry(d*0.05, d*0.005, 16, 64);
+            const matGray = new THREE.MeshBasicMaterial({ color: 0x555555 });
+            const grayCircle = new THREE.Mesh(geoGray, matGray);
+            grayCircle.rotation.x = Math.PI / 2;
+            grayCircle.position.set(-d*0.1, size.y * 0.85, d*0.1);
+            this.geoOverlayGroup.add(grayCircle);
         },
-        
+
         handleRaycast: function(event) {
             if(this.viewer360Active) return;
             this.raycaster.setFromCamera(this.mouse, this.camera);
             let hitBoxes = [];
-            this.hotspotGroup.children.forEach(g => hitBoxes.push(g.children[2]));
+            this.hotspotGroup.children.forEach(group => hitBoxes.push(group.children[2]));
             const hits = this.raycaster.intersectObjects(hitBoxes);
             
-            // MODE EDIT
+            // ---- MODE EDIT ----
             if(this.editMode) {
                 if(hits.length > 0) {
-                    // pilih titik
+                    // Pilih titik yang diklik
                     const group = hits[0].object.parent;
-                    if(this.selectedHotspot) this.selectedHotspot.children[0].material.emissiveIntensity = 0.5;
+                    if(this.selectedHotspot) {
+                        this.selectedHotspot.children[0].material.emissiveIntensity = 0.5;
+                        this.selectedHotspot.children[0].material.color.setHex(0xd4af37);
+                    }
                     this.selectedHotspot = group;
                     group.children[0].material.emissiveIntensity = 1.2;
                     group.children[0].material.color.setHex(0xffaa44);
                     return;
                 } else {
-                    // jika ada titik terpilih, pindahkan ke posisi klik pada model
+                    // Jika ada titik terpilih, pindahkan ke posisi klik pada model
                     if(this.selectedHotspot) {
-                        // cari intersect dengan model
+                        // Raycast ke model untuk mendapatkan titik di permukaan
                         const raycasterModel = new THREE.Raycaster();
                         raycasterModel.setFromCamera(this.mouse, this.camera);
                         const modelIntersects = raycasterModel.intersectObject(this.modelGroup, true);
                         if(modelIntersects.length > 0) {
                             const hitPoint = modelIntersects[0].point;
                             this.selectedHotspot.position.copy(hitPoint);
-                            this.selectedHotspot.position.y += 1.5;
+                            this.selectedHotspot.position.y += 1.5; // offset marker
                             this.selectedHotspot.userData.originalY = hitPoint.y + 1.5;
-                            // update HOTSPOT_DATA
+                            // Update HOTSPOT_DATA dengan posisi relatif baru
                             const id = this.selectedHotspot.userData.id;
                             const dataIndex = HOTSPOT_DATA.findIndex(d => d.id === id);
                             if(dataIndex !== -1) {
-                                const size = new THREE.Vector3(); this.boundingBox.getSize(size);
+                                const size = new THREE.Vector3();
+                                this.boundingBox.getSize(size);
                                 const maxD = Math.max(size.x, size.z);
                                 const relX = hitPoint.x / maxD;
                                 const relZ = hitPoint.z / maxD;
@@ -347,7 +482,7 @@
                                 HOTSPOT_DATA[dataIndex].relX = relX;
                                 HOTSPOT_DATA[dataIndex].relY = relY;
                                 HOTSPOT_DATA[dataIndex].relZ = relZ;
-                                console.log(`Hotspot ${id} moved to`, hitPoint);
+                                console.log(`Hotspot ${id} dipindah ke posisi baru:`, hitPoint);
                             }
                         }
                     }
@@ -355,117 +490,157 @@
                 }
             }
             
-            // MODE NORMAL: klik hotspot -> zoom + buka 360
-            if(hits.length > 0) {
+            // ---- MODE NORMAL: klik hotspot -> zoom + buka 360 ----
+            if(hits.length > 0 && event.type === 'click') {
                 const data = hits[0].object.userData;
                 const targetPos = hits[0].object.parent.position;
-                gsap.to(this.controls.target, { x: targetPos.x, y: targetPos.y, z: targetPos.z, duration: 0.8 });
-                gsap.to(this.camera.position, { x: targetPos.x+15, y: targetPos.y+12, z: targetPos.z+18, duration: 0.8, onComplete: () => { this.open360Viewer(data); } });
+                gsap.to(this.controls.target, { x: targetPos.x, y: targetPos.y, z: targetPos.z, duration: 1, ease: "power2.inOut" });
+                gsap.to(this.camera.position, { x: targetPos.x + 20, y: targetPos.y + 15, z: targetPos.z + 20, duration: 1, ease: "power2.inOut", onComplete: () => { this.open360Viewer(data); } });
             }
         },
-        
+
         onMouseMove: function(event) {
             const rect = this.container.getBoundingClientRect();
-            this.mouse.x = ((event.clientX - rect.left)/rect.width)*2 -1;
-            this.mouse.y = -((event.clientY - rect.top)/rect.height)*2 +1;
+            this.mouse.x = ((event.clientX - rect.left) / this.container.clientWidth) * 2 - 1;
+            this.mouse.y = -((event.clientY - rect.top) / this.container.clientHeight) * 2 + 1;
             this.raycaster.setFromCamera(this.mouse, this.camera);
             let hitBoxes = [];
-            this.hotspotGroup.children.forEach(g => hitBoxes.push(g.children[2]));
-            const hits = this.raycaster.intersectObjects(hitBoxes);
+            this.hotspotGroup.children.forEach(group => hitBoxes.push(group.children[2]));
+            const intersects = this.raycaster.intersectObjects(hitBoxes);
             const tooltip = document.getElementById('tooltip');
-            if(hits.length > 0 && !this.editMode) {
-                const data = hits[0].object.userData;
-                const group = hits[0].object.parent;
-                group.children[0].scale.set(1.5,1.5,1.5);
+            if (intersects.length > 0 && !this.editMode) {
+                document.body.style.cursor = 'pointer';
+                const data = intersects[0].object.userData;
+                const group = intersects[0].object.parent;
+                group.children[0].scale.set(1.5, 1.5, 1.5);
+                group.children[0].material.emissiveIntensity = 1;
                 tooltip.style.display = 'block';
-                tooltip.innerHTML = `<strong>${data.title}</strong><br><span style="color:var(--accent)">Klik untuk 360°</span>`;
-                const vec = group.position.clone().project(this.camera);
-                const x = (vec.x*0.5+0.5)*this.container.clientWidth;
-                const y = (vec.y*-0.5+0.5)*this.container.clientHeight;
-                tooltip.style.left = x+'px'; tooltip.style.top = (y-40)+'px';
+                tooltip.innerHTML = `<strong>${data.title}</strong><br><span style="color:var(--accent); font-size:10px;">Klik untuk masuk 360° View</span>`;
+                const vector = group.position.clone();
+                vector.project(this.camera);
+                const x = (vector.x * .5 + .5) * this.container.clientWidth;
+                const y = (vector.y * -.5 + .5) * this.container.clientHeight;
+                tooltip.style.left = `${x}px`; tooltip.style.top = `${y - 30}px`;
             } else {
+                document.body.style.cursor = 'default';
                 tooltip.style.display = 'none';
-                this.hotspotGroup.children.forEach(g => g.children[0].scale.set(1,1,1));
+                this.hotspotGroup.children.forEach(group => { group.children[0].scale.set(1, 1, 1); group.children[0].material.emissiveIntensity = 0.5; });
             }
         },
-        
+
         open360Viewer: function(data) {
             document.getElementById('viewer-360').classList.add('active');
+            document.getElementById('tooltip').style.display = 'none';
             if(!this.scene360) this.create360Scene();
             this.viewer360Active = true;
             this.currentHotspotData = data;
-            // sederhana: langsung buka popup tanpa 360 marker (bisa disesuaikan)
-            setTimeout(() => { this.openDetailPopup(); }, 300);
+            this.create360Hotspots(data);
         },
-        close360Viewer: function() { document.getElementById('viewer-360').classList.remove('active'); this.viewer360Active = false; },
+
+        close360Viewer: function() { document.getElementById('viewer-360').classList.remove('active'); this.viewer360Active = false; gsap.to(this.camera.position, { y: this.camera.position.y + 30, duration: 1 }); },
+
         create360Scene: function() {
             const container = document.getElementById('canvas-360');
             this.scene360 = new THREE.Scene();
-            this.camera360 = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            this.camera360.position.set(0,0,0);
-            const geo = new THREE.SphereGeometry(500,60,40); geo.scale(-1,1,1);
-            const tex = (()=>{ let c=document.createElement('canvas');c.width=1024;c.height=512;let ctx=c.getContext('2d');ctx.fillStyle='#1a365d';ctx.fillRect(0,0,1024,512);ctx.fillStyle='#3f6212';for(let i=0;i<1024;i+=20) ctx.fillRect(i,300,10,50);return new THREE.CanvasTexture(c);})();
-            const sphere = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map:tex }));
-            this.scene360.add(sphere);
-            let lon=0, lat=0, isDragging=false;
-            container.addEventListener('mousedown',()=>isDragging=true);
-            window.addEventListener('mousemove',(e)=>{if(isDragging&&this.viewer360Active){lon+=e.movementX*0.5;lat+=e.movementY*0.5;lat=Math.min(85,Math.max(-85,lat));}});
-            window.addEventListener('mouseup',()=>isDragging=false);
-            this.update360Camera = ()=>{
-                let phi = THREE.MathUtils.degToRad(90-lat), theta = THREE.MathUtils.degToRad(lon);
-                let target = new THREE.Vector3(500*Math.sin(phi)*Math.cos(theta), 500*Math.cos(phi), 500*Math.sin(phi)*Math.sin(theta));
-                this.camera360.lookAt(target);
-            };
+            this.camera360 = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            this.camera360.position.set(0, 0, 0);
+            const geo = new THREE.SphereGeometry(500, 60, 40);
+            geo.scale(-1, 1, 1);
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024; canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            const grd = ctx.createLinearGradient(0, 0, 0, 512);
+            grd.addColorStop(0, '#1a365d'); grd.addColorStop(0.5, '#cbd5e1'); grd.addColorStop(0.55, '#3f6212'); grd.addColorStop(1, '#14532d');
+            ctx.fillStyle = grd; ctx.fillRect(0, 0, 1024, 512);
+            ctx.fillStyle = '#1e293b'; ctx.beginPath(); ctx.moveTo(0, 256);
+            for(let i=0; i<=1024; i+=10) ctx.lineTo(i, 256 - Math.random() * 40 - Math.sin(i/50)*30);
+            ctx.lineTo(1024, 512); ctx.lineTo(0, 512); ctx.fill();
+            const texture = new THREE.CanvasTexture(canvas);
+            const mat = new THREE.MeshBasicMaterial({ map: texture });
+            this.sphere360 = new THREE.Mesh(geo, mat);
+            this.scene360.add(this.sphere360);
+            this.hotspot360Group = new THREE.Group();
+            this.scene360.add(this.hotspot360Group);
+            let isDragging = false, lon = 0, lat = 0, phi = 0, theta = 0;
+            let onPointerDownPointerX, onPointerDownPointerY, onPointerDownLon, onPointerDownLat;
+            container.addEventListener('mousedown', (e) => { isDragging = true; onPointerDownPointerX = e.clientX; onPointerDownPointerY = e.clientY; onPointerDownLon = lon; onPointerDownLat = lat; });
+            window.addEventListener('mousemove', (e) => { if(!isDragging || !this.viewer360Active) return; lon = (onPointerDownPointerX - e.clientX) * 0.1 + onPointerDownLon; lat = (e.clientY - onPointerDownPointerY) * 0.1 + onPointerDownLat; lat = Math.max(-85, Math.min(85, lat)); });
+            window.addEventListener('mouseup', () => isDragging = false);
+            this.update360Camera = function() { lat = Math.max(-85, Math.min(85, lat)); phi = THREE.MathUtils.degToRad(90 - lat); theta = THREE.MathUtils.degToRad(lon); const target = new THREE.Vector3(); target.x = 500 * Math.sin(phi) * Math.cos(theta); target.y = 500 * Math.cos(phi); target.z = 500 * Math.sin(phi) * Math.sin(theta); this.camera360.lookAt(target); };
+            container.addEventListener('click', (e) => { if(!this.viewer360Active) return; const rect = container.getBoundingClientRect(); const mx = ((e.clientX - rect.left) / window.innerWidth) * 2 - 1; const my = -((e.clientY - rect.top) / window.innerHeight) * 2 + 1; this.raycaster.setFromCamera(new THREE.Vector2(mx, my), this.camera360); const intersects = this.raycaster.intersectObjects(this.hotspot360Group.children); if(intersects.length > 0) this.openDetailPopup(); });
         },
+
+        create360Hotspots: function(parentData) {
+            this.hotspot360Group.clear();
+            const geo = new THREE.PlaneGeometry(20, 20);
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.beginPath(); ctx.arc(64, 64, 50, 0, 2*Math.PI);
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.5)'; ctx.fill();
+            ctx.lineWidth = 10; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 60px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('i', 64, 64);
+            const tex = new THREE.CanvasTexture(canvas);
+            const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthTest: false });
+            const marker = new THREE.Mesh(geo, mat);
+            marker.position.set(100, -20, -200); marker.lookAt(0,0,0);
+            this.hotspot360Group.add(marker);
+        },
+
         openDetailPopup: function() {
             const data = this.currentHotspotData;
             if(!data) return;
             document.getElementById('popup-title').innerText = data.title;
             document.getElementById('popup-tag').innerText = data.tag;
             document.getElementById('popup-desc').innerHTML = data.desc;
-            document.getElementById('popup-img').src = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800';
+            const imgMap = { "Morfologi": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b", "Struktur Geologi": "https://images.unsplash.com/photo-1518017357597-2a818c505342", "Litologi": "https://images.unsplash.com/photo-1525010996849-c12435fbc08a", "Geowisata": "https://images.unsplash.com/photo-1432405972618-c60002059431", "Vulkanologi": "https://images.unsplash.com/photo-1605333556488-82db37b2d56a" };
+            let src = imgMap[data.tag] || "https://images.unsplash.com/photo-1605333556488-82db37b2d56a";
+            document.getElementById('popup-img').src = src + "?auto=format&fit=crop&q=80&w=1000";
             document.getElementById('detail-popup').classList.add('active');
         },
+
         closePopup: function() { document.getElementById('detail-popup').classList.remove('active'); },
-        onWindowResize: function() { let w=window.innerWidth, h=window.innerHeight; this.camera.aspect=w/h; this.camera.updateProjectionMatrix(); this.renderer.setSize(w,h); if(this.camera360){ this.camera360.aspect=w/h; this.camera360.updateProjectionMatrix(); } },
-        showLoading: function(show,text) { let el=document.getElementById('loader-ui'); if(show) { if(text) document.querySelector('#loader-ui .loading-text').innerText=text; el.style.display='flex'; } else { el.style.opacity='0'; setTimeout(()=>el.style.display='none',500); } },
+
+        onWindowResize: function() { if(!this.camera || !this.renderer) return; const w = window.innerWidth; const h = window.innerHeight; this.camera.aspect = w / h; this.camera.updateProjectionMatrix(); if(this.camera360) { this.camera360.aspect = w / h; this.camera360.updateProjectionMatrix(); } this.renderer.setSize(w, h); },
+
+        showLoading: function(show, text="") { const loader = document.getElementById('loader-ui'); if(show) { if(text) document.getElementById('load-text').innerText = text; loader.style.display = 'flex'; setTimeout(()=> loader.style.opacity = '1', 10); } else { loader.style.opacity = '0'; setTimeout(()=> loader.style.display = 'none', 500); } },
+
         showUIError: function(show) { document.getElementById('error-ui').style.display = show ? 'flex' : 'none'; },
+
         updateLegendUI: function(mode) {
-            let legendPanel=document.getElementById('legend-panel'), morph=document.getElementById('morph-scale');
-            if(mode==='MORFOMETRI') { legendPanel.style.display='none'; morph.style.display='flex'; return; }
-            morph.style.display='none'; legendPanel.style.display='block';
-            document.getElementById('legend-title').innerText=UI_LEGENDS[mode].title;
-            let list=document.getElementById('legend-list'); list.innerHTML='';
-            UI_LEGENDS[mode].items.forEach(it=>{ let html=''; if(it.type==='line') html=`<div class="legend-line" style="background:${it.color}"></div>`; else if(it.type==='circle') html=`<div class="legend-circle" style="border-color:${it.color}"></div>`; else html=`<div class="legend-pin">${it.icon}</div>`; list.innerHTML+=`<li class="legend-item">${html}<span>${it.label}</span></li>`; });
+            const legendPanel = document.getElementById('legend-panel');
+            const morphScale = document.getElementById('morph-scale');
+            const list = document.getElementById('legend-list');
+            if(mode === 'MORFOMETRI') { legendPanel.style.display = 'none'; morphScale.style.display = 'flex'; }
+            else { morphScale.style.display = 'none'; legendPanel.style.display = 'block'; document.getElementById('legend-title').innerText = UI_LEGENDS[mode].title; list.innerHTML = ''; UI_LEGENDS[mode].items.forEach(item => { let iconHtml = ''; if(item.type === 'line') iconHtml = `<div class="legend-line" style="background:${item.color}"></div>`; else if(item.type === 'circle') iconHtml = `<div class="legend-circle" style="border-color:${item.color}"></div>`; else if(item.type === 'pin') iconHtml = `<div class="legend-pin">${item.icon}</div>`; list.innerHTML += `<li class="legend-item">${iconHtml}<span>${item.label}</span></li>`; }); }
         },
+
         animate: function() {
-            requestAnimationFrame(()=>this.animate());
-            const t = Date.now()*0.002;
+            requestAnimationFrame(() => this.animate());
+            const time = Date.now() * 0.002;
             if(this.hotspotGroup && !this.viewer360Active) {
-                this.hotspotGroup.children.forEach(g=>{ let off = g.userData.offset; g.position.y = g.userData.originalY + Math.sin(t+off)*0.5; let ring = g.children[1]; let sc = (t*0.5+off)%2; ring.scale.set(sc,sc,sc); ring.material.opacity = 1-(sc/2); });
+                this.hotspotGroup.children.forEach(group => { const ring = group.children[1]; const data = group.userData; group.position.y = data.originalY + Math.sin(time + data.offset) * 0.5; let scale = (time * 0.5 + data.offset) % 2; ring.scale.set(scale, scale, scale); ring.material.opacity = 1 - (scale / 2); });
             }
-            if(this.viewer360Active && this.scene360) { if(this.update360Camera) this.update360Camera(); this.renderer.render(this.scene360, this.camera360); }
-            else { this.controls.update(); this.renderer.render(this.scene, this.camera); }
+            if(this.viewer360Active && this.scene360) { if(this.update360Camera) this.update360Camera(); if(this.hotspot360Group.children.length > 0) { const marker = this.hotspot360Group.children[0]; marker.lookAt(this.camera360.position); marker.scale.setScalar(1 + Math.sin(time*3)*0.1); } this.renderer.render(this.scene360, this.camera360); } else { this.controls.update(); this.renderer.render(this.scene, this.camera); }
         }
     };
-    
+
     // Start aplikasi
     const appManager = {
         init: function() {
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    let target = e.target.getAttribute('data-target');
-                    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+                    const targetId = e.target.getAttribute('data-target');
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
-                    document.querySelectorAll('.page-container').forEach(p=>p.classList.remove('active'));
-                    document.getElementById(target).classList.add('active');
-                    window.scrollTo(0,0);
-                    if(target==='page-viewer' && !engine3D.initialized) setTimeout(()=>engine3D.initScene(), 300);
+                    document.querySelectorAll('.page-container').forEach(page => page.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    if(targetId === 'page-viewer' && !engine3D.initialized) setTimeout(() => engine3D.initScene(), 500);
                 });
             });
-            // parallax sederhana
-            window.addEventListener('scroll',()=>{ let nav=document.getElementById('navbar'); if(window.scrollY>50) nav.classList.add('scrolled'); else nav.classList.remove('scrolled'); });
-            new IntersectionObserver((e)=>e.forEach(entry=>{if(entry.isIntersecting)entry.target.classList.add('active');}),{threshold:0.1}).observe(document.querySelector('.reveal'));
+            window.addEventListener('scroll', () => { const nav = document.getElementById('navbar'); if(window.scrollY > 50) nav.classList.add('scrolled'); else nav.classList.remove('scrolled'); });
+            new IntersectionObserver((entries) => { entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('active'); }); }, { threshold: 0.15 }).observe(document.querySelector('.reveal'));
         }
     };
     window.onload = () => { appManager.init(); };
