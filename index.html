@@ -405,21 +405,15 @@
             background: rgba(212, 175, 55, 0.15); border-color: var(--color-gold); color: var(--color-gold);
         }
 
-        /* Tombol Edit Khusus */
-        .btn-edit {
-            margin-top: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--color-danger); color: #fca5a5;
-        }
-        .btn-edit.active { background: var(--color-danger); color: white; border-color: var(--color-danger); box-shadow: 0 0 15px rgba(239,68,68,0.5); }
-        .btn-edit.active::after { content: ' (Aktif)'; font-size: 0.8rem; }
-
-        /* Crosshair Cursor untuk Edit Mode */
-        body.editing-mode #canvas-3d { cursor: crosshair !important; }
-
-        /* Legend Morfometri (Bawah Tengah) */
+        /* Legend Panel Umum */
         .legend-panel {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            display: none; /* Hidden by default */
             width: 90%; max-width: 600px; text-align: center;
+        }
+
+        /* Legend Morfometri Spesifik */
+        #legend-morphometry {
+            display: none; /* Hidden by default */
         }
 
         .legend-bar {
@@ -431,6 +425,43 @@
         .legend-labels {
             display: flex; justify-content: space-between;
             font-size: 0.75rem; color: var(--color-text-main); font-weight: 500;
+        }
+
+        /* Legend Geologi Spesifik */
+        #legend-geology {
+            max-width: 1000px;
+            display: none; /* Hidden by default */
+            padding: 20px;
+        }
+
+        .geology-legend-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+            text-align: left;
+        }
+
+        .geo-legend-item {
+            display: flex; gap: 15px;
+        }
+
+        .geo-color-box {
+            width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0; margin-top: 3px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+        }
+
+        .geo-text {
+            font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.5;
+        }
+
+        .geo-text strong {
+            color: var(--color-text-main); font-size: 0.95rem; display: block; margin-bottom: 8px; letter-spacing: 0.5px;
+        }
+
+        .geo-text ul {
+            padding-left: 15px; margin: 0; list-style-type: disc;
+        }
+
+        .geo-text li {
+            margin-bottom: 5px;
         }
 
         /* Tooltip Hover */
@@ -569,6 +600,7 @@
             }
             .mode-btn { white-space: nowrap; font-size: 0.85rem; padding: 8px 12px; }
             .legend-panel { width: 95%; bottom: 15px; }
+            .geology-legend-grid { grid-template-columns: 1fr; gap: 15px; max-height: 35vh; overflow-y: auto; padding-right: 10px;}
             .hero h1 { font-size: 2.5rem; }
             .hero p { font-size: 1.1rem; }
             .section-wrapper { padding: 60px 5%; }
@@ -757,6 +789,29 @@
                 </div>
             </div>
         </section>
+        
+        <!-- LOKASI GUNUNG BETUNG -->
+        <section class="section-wrapper reveal">
+            <div class="section-header">
+                <h2>Lokasi & Aksesibilitas</h2>
+            </div>
+            <div class="split-layout reverse">
+                <div class="split-content">
+                    <h3 style="font-size: 1.8rem; margin-bottom: 20px;">📍 Peta Lokasi</h3>
+                    <p>Gunung Betung terletak strategis tidak jauh dari pusat Kota Bandar Lampung, menjadikannya salah satu destinasi wisata alam dan edukasi geologi yang paling mudah diakses di Provinsi Lampung. Secara administratif, sebagian besar kawasannya masuk ke dalam Kabupaten Pesawaran.</p>
+                    <ul class="custom-list">
+                        <li><strong>Kawasan:</strong> Taman Hutan Raya (Tahura) Wan Abdul Rachman.</li>
+                        <li><strong>Waktu Tempuh:</strong> ± 45 menit dari pusat kota Bandar Lampung.</li>
+                        <li><strong>Jalur Utama:</strong> Melewati rute Kemiling, lalu arah Desa Hurun atau area Tahura.</li>
+                    </ul>
+                </div>
+                <div class="split-image">
+                    <div class="image-frame">
+                        <img src="images/lokasi_gunung_betung.jpg" alt="Peta Lokasi Gunung Betung" class="fallback-img" data-title="Peta Lokasi & Akses">
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- D. TIM PENGEMBANG -->
         <section class="section-wrapper reveal" style="padding-bottom: 50px;">
@@ -837,13 +892,6 @@
             <button class="mode-btn active" onclick="app3D.changeMode('satellite')">🛰️ Mode Satelit</button>
             <button class="mode-btn" onclick="app3D.changeMode('geology')">⚒️ Mode Geologi</button>
             <button class="mode-btn" onclick="app3D.changeMode('morphometry')">📊 Mode Morfometri</button>
-            
-            <div class="control-group-title" style="margin-top: 15px;">Alat Interaktif</div>
-            <button id="btn-toggle-edit" class="mode-btn btn-edit" onclick="app3D.toggleEditMode()">✏️ Edit Posisi Titik</button>
-            <button id="btn-export-titik" class="mode-btn" style="display: none; margin-top: 10px; background: rgba(16, 185, 129, 0.1); border-color: var(--color-success); color: #6ee7b7;" onclick="app3D.exportPoints()">💾 Dapatkan Kode Baru</button>
-            <div id="edit-helper-text" style="display: none; font-size: 0.75rem; color: #fca5a5; margin-top: 5px; line-height: 1.3;">
-                Klik hotspot untuk memilih, lalu klik pada model untuk memindahkannya.
-            </div>
         </div>
 
         <!-- Legend Morfometri -->
@@ -856,6 +904,57 @@
                 <span>Agak Curam</span>
                 <span>Curam</span>
                 <span>Sgt Curam</span>
+            </div>
+        </div>
+
+        <!-- Legend Geologi (Ditambahkan) -->
+        <div id="legend-geology" class="glass-panel legend-panel">
+            <div style="font-family: var(--font-heading); color: var(--color-gold); font-size: 1.1rem; margin-bottom: 15px;">Legenda Peta 3D – Karakteristik Wilayah & Litologi</div>
+            
+            <div class="geology-legend-grid">
+                <!-- Zona Merah -->
+                <div class="geo-legend-item">
+                    <div class="geo-color-box" style="background: #ef4444;"></div>
+                    <div class="geo-text">
+                        <strong>Merah</strong>
+                        <ul>
+                            <li><strong>Lereng:</strong> 16–35°</li>
+                            <li><strong>Topografi:</strong> kasar, punggungan sirkular tapal kuda</li>
+                            <li><strong>Pola aliran sungai:</strong> radial sentripetal & rektangular</li>
+                            <li><strong>Litologi:</strong> batuan gunungapi tua, breksi vulkanik, lava tererosi</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Zona Hijau -->
+                <div class="geo-legend-item">
+                    <div class="geo-color-box" style="background: #22c55e;"></div>
+                    <div class="geo-text">
+                        <strong>Hijau</strong>
+                        <ul>
+                            <li><strong>Lereng:</strong> 16–56°</li>
+                            <li><strong>Topografi:</strong> punggungan tererosi, lobus lava, tekstur halus hingga kasar</li>
+                            <li><strong>Pola aliran sungai:</strong> radial sentrifugal → menunjukkan umur gunung lebih muda</li>
+                            <li><strong>Litologi:</strong> lava basaltik/andesitik, tuff, agglomerate, deposit piroklastik</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Zona Biru -->
+                <div class="geo-legend-item">
+                    <div class="geo-color-box" style="background: #3b82f6;"></div>
+                    <div class="geo-text">
+                        <strong>Biru</strong>
+                        <ul>
+                            <li><strong>Lereng:</strong> 16–56°</li>
+                            <li><strong>Topografi:</strong> halus hingga sedang</li>
+                            <li><strong>Kawah:</strong> bukaan berarah baratdaya, pusat erupsi terakhir terlihat</li>
+                            <li><strong>Lobus lava:</strong> berarah baratdaya</li>
+                            <li><strong>Pola aliran sungai:</strong> radial sentrifugal → umur lebih muda dibanding wilayah lain</li>
+                            <li><strong>Litologi:</strong> lava andesitik, tuff, breksi vulkanik, endapan piroklastik halus</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1027,22 +1126,22 @@
          * 3. DATA HOTSPOT (Sesuai Permintaan)
          */
         const hotspotData = [
-            { name: "Puncak", lat: -5.417245, lng: 105.148784, desc: "Puncak Gunung Betung merupakan titik tertinggi geotrail dengan panorama bentang alam vulkanik yang luas. Dari area ini dapat diamati morfologi pegunungan, lembah, serta tutupan hutan di sekitarnya. Puncak menjadi representasi akhir dari proses geologi vulkanik dan tektonik yang membentuk kawasan Gunung Betung hingga saat ini." },
-            { name: "Pos 4 pendakian", lat: -5.416868, lng: 105.148526, desc: "Pos 4 terletak pada zona lereng atas Gunung Betung. Jalur didominasi akar pohon dan singkapan batuan yang menunjukkan tingkat erosi cukup tinggi. Dari lokasi ini mulai terlihat panorama bentang alam sekitar kawasan pegunungan Lampung." },
-            { name: "Pos 2 pendakian", lat: -5.416707, lng: 105.148383, desc: "Pos 2 berada pada elevasi yang lebih tinggi dengan jalur yang mulai menanjak tajam. Vegetasi semakin rapat dan suhu udara lebih rendah. Material penyusun jalur masih didominasi oleh hasil pelapukan batuan vulkanik dengan tingkat kelembaban tinggi." },
-            { name: "Poin 1 (bongkah batuan beku)", lat: -5.414390, lng: 105.147627, desc: "Pada lokasi ini ditemukan bongkah batuan beku yang berasal dari aktivitas vulkanisme Gunung Betung. Batuan memiliki tekstur masif dengan warna abu-abu gelap dan ukuran mineral yang relatif halus. Kehadiran bongkah ini menunjukkan proses pelapukan dan transportasi material dari tubuh gunung api menuju lereng bawah." },
-            { name: "Pos 5 pendakian (litologi lapili)", lat: -5.417162, lng: 105.148661, desc: "Pos 5 merupakan titik persiapan akhir sebelum menuju puncak. Kondisi medan relatif lebih terbuka dengan vegetasi yang mulai berkurang. Material batuan di sekitar jalur didominasi fragmen vulkanik dan tanah tipis hasil pelapukan intensif." },
-            { name: "Plang arah air terjun", lat: -5.413876, lng: 105.147697, desc: "Plang arah air terjun menjadi penunjuk jalur menuju salah satu objek geomorfologi berupa aliran air yang terbentuk akibat erosi sungai pada batuan vulkanik. Area sekitar jalur memperlihatkan vegetasi tropis lembab yang berkembang di atas tanah hasil pelapukan material gunung api." },
-            { name: "Pintu rimba", lat: -5.415926, lng: 105.147674, desc: "Pintu rimba menandai awal masuknya jalur ke kawasan hutan yang lebih rapat. Kondisi lingkungan berubah menjadi lebih lembab dengan tutupan vegetasi yang dominan. Tanah pada area ini berkembang dari hasil pelapukan batuan vulkanik yang kaya mineral." },
-            { name: "Campground", lat: -5.415687, lng: 105.147615, desc: "Campground merupakan area datar yang dimanfaatkan sebagai lokasi berkemah. Bentuk lahannya relatif landai akibat proses sedimentasi material vulkanik dan pelapukan lereng di sekitarnya. Dari lokasi ini dapat diamati bentang alam perbukitan vulkanik serta vegetasi pegunungan bawah." },
-            { name: "Pos 1 pendakian", lat: -5.416661, lng: 105.148110, desc: "Pos 1 merupakan titik istirahat awal pendakian dengan kemiringan lereng yang mulai meningkat. Litologi di sekitar jalur didominasi material vulkanik lapuk yang bercampur akar vegetasi. Area ini menunjukkan transisi dari zona kaki gunung menuju lereng tengah." },
-            { name: "Pos 3 pendakian", lat: -5.416645, lng: 105.148454, desc: "Pos 3 menjadi area istirahat sebelum memasuki jalur yang lebih terjal. Pada lokasi ini dapat diamati perubahan morfologi lereng serta semakin banyak singkapan batuan vulkanik yang muncul di sepanjang jalur pendakian." },
-            { name: "Sungai sebelum Pos 1", lat: -5.416637, lng: 105.148011, desc: "Sungai ini mengalir sepanjang tahun dengan debit air yang bervariasi. Aliran sungai berperan dalam proses erosi linier yang membentuk lembah kecil di sekitar jalur pendakian. Material dasar sungai didominasi kerikil dan pasir hasil pelapukan batuan vulkanik." },
-            { name: "Bongkah berkekar gerus", lat: -5.417213, lng: 105.148721, desc: "Pada lokasi ini ditemukan bongkah batuan yang memiliki rekahan gerus (shear fracture). Rekahan terbentuk akibat tekanan tektonik yang bekerja pada batuan sehingga menghasilkan bidang-bidang pecahan. Struktur ini menunjukkan adanya pengaruh gaya deformasi setelah proses pembentukan batuan." },
-            { name: "Litologi tuf lapili", lat: -5.416764, lng: 105.148282, desc: "Lokasi ini memperlihatkan bongkah batuan tuff lapili yang terbentuk dari hasil letusan eksplosif gunung api. Batuan tersusun oleh fragmen vulkanik berukuran lapili yang terikat oleh matriks abu vulkanik. Kehadiran tuff lapili menunjukkan adanya fase erupsi eksplosif pada sejarah pembentukan Gunung Betung." },
-            { name: "Pertigaan air terjun", lat: -5.415410, lng: 105.147632, desc: "Lokasi pertigaan menjadi titik percabangan jalur menuju air terjun dan jalur utama pendakian menuju basecamp. Secara geomorfologi area ini berada pada lereng dengan kemiringan sedang dan tersusun oleh material vulkanik hasil pelapukan yang cukup tebal." },
-            { name: "Air terjun (litologi andesit)", lat: -5.415505, lng: 105.147754, desc: "Air terjun ini berkembang pada litologi andesit yang memiliki ketahanan cukup tinggi terhadap erosi. Struktur batuan terlihat kompak dengan warna abu-abu hingga kehitaman. Aliran air memanfaatkan rekahan alami pada batuan sehingga membentuk tebing curam dan morfologi air terjun yang khas." },
-            { name: "Pos pendaftaran", lat: -5.413152, lng: 105.147737, desc: "Pos pendaftaran merupakan titik awal kegiatan geotrail pendakian Gunung Betung. Lokasi ini berfungsi sebagai tempat registrasi pendaki sekaligus pusat informasi mengenai jalur pendakian, kondisi cuaca, dan aturan konservasi kawasan. Dari area ini mulai terlihat karakter morfologi perbukitan vulkanik yang menjadi ciri utama Gunung Betung." }
+            { name: "Puncak", lat: -5.429191, lng: 105.155359, desc: "Puncak Gunung Betung merupakan titik tertinggi geotrail dengan panorama bentang alam vulkanik yang luas. Dari area ini dapat diamati morfologi pegunungan, lembah, serta tutupan hutan di sekitarnya. Puncak menjadi representasi akhir dari proses geologi vulkanik dan tektonik yang membentuk kawasan Gunung Betung hingga saat ini." },
+            { name: "Pos 4 pendakian", lat: -5.427199, lng: 105.152394, desc: "Pos 4 terletak pada zona lereng atas Gunung Betung. Jalur didominasi akar pohon dan singkapan batuan yang menunjukkan tingkat erosi cukup tinggi. Dari lokasi ini mulai terlihat panorama bentang alam sekitar kawasan pegunungan Lampung." },
+            { name: "Pos 2 pendakian", lat: -5.426751, lng: 105.149670, desc: "Pos 2 berada pada elevasi yang lebih tinggi dengan jalur yang mulai menanjak tajam. Vegetasi semakin rapat dan suhu udara lebih rendah. Material penyusun jalur masih didominasi oleh hasil pelapukan batuan vulkanik dengan tingkat kelembaban tinggi." },
+            { name: "Poin 1 (bongkah batuan beku)", lat: -5.414507, lng: 105.142130, desc: "Pada lokasi ini ditemukan bongkah batuan beku yang berasal dari aktivitas vulkanisme Gunung Betung. Batuan memiliki tekstur masif dengan warna abu-abu gelap dan ukuran mineral yang relatif halus. Kehadiran bongkah ini menunjukkan proses pelapukan dan transportasi material dari tubuh gunung api menuju lereng bawah." },
+            { name: "Pos 5 pendakian (litologi lapili)", lat: -5.428801, lng: 105.154080, desc: "Pos 5 merupakan titik persiapan akhir sebelum menuju puncak. Kondisi medan relatif lebih terbuka dengan vegetasi yang mulai berkurang. Material batuan di sekitar jalur didominasi fragmen vulkanik dan tanah tipis hasil pelapukan intensif." },
+            { name: "Plang arah air terjun", lat: -5.411865, lng: 105.142960, desc: "Plang arah air terjun menjadi penunjuk jalur menuju salah satu objek geomorfologi berupa aliran air yang terbentuk akibat erosi sungai pada batuan vulkanik. Area sekitar jalur memperlihatkan vegetasi tropis lembab yang berkembang di atas tanah hasil pelapukan material gunung api." },
+            { name: "Pintu rimba", lat: -5.422473, lng: 105.142658, desc: "Pintu rimba menandai awal masuknya jalur ke kawasan hutan yang lebih rapat. Kondisi lingkungan berubah menjadi lebih lembab dengan tutupan vegetasi yang dominan. Tanah pada area ini berkembang dari hasil pelapukan batuan vulkanik yang kaya mineral." },
+            { name: "Campground", lat: -5.421244, lng: 105.142062, desc: "Campground merupakan area datar yang dimanfaatkan sebagai lokasi berkemah. Bentuk lahannya relatif landai akibat proses sedimentasi material vulkanik dan pelapukan lereng di sekitarnya. Dari lokasi ini dapat diamati bentang alam perbukitan vulkanik serta vegetasi pegunungan bawah." },
+            { name: "Pos 1 pendakian", lat: -5.426030, lng: 105.147557, desc: "Pos 1 merupakan titik istirahat awal pendakian dengan kemiringan lereng yang mulai meningkat. Litologi di sekitar jalur didominasi material vulkanik lapuk yang bercampur akar vegetasi. Area ini menunjukkan transisi dari zona kaki gunung menuju lereng tengah." },
+            { name: "Pos 3 pendakian", lat: -5.426076, lng: 105.151551, desc: "Pos 3 menjadi area istirahat sebelum memasuki jalur yang lebih terjal. Pada lokasi ini dapat diamati perubahan morfologi lereng serta semakin banyak singkapan batuan vulkanik yang muncul di sepanjang jalur pendakian." },
+            { name: "Sungai sebelum Pos 1", lat: -5.426046, lng: 105.146570, desc: "Sungai ini mengalir sepanjang tahun dengan debit air yang bervariasi. Aliran sungai berperan dalam proses erosi linier yang membentuk lembah kecil di sekitar jalur pendakian. Material dasar sungai didominasi kerikil dan pasir hasil pelapukan batuan vulkanik." },
+            { name: "Bongkah berkekar gerus", lat: -5.429023, lng: 105.154569, desc: "Pada lokasi ini ditemukan bongkah batuan yang memiliki rekahan gerus (shear fracture). Rekahan terbentuk akibat tekanan tektonik yang bekerja pada batuan sehingga menghasilkan bidang-bidang pecahan. Struktur ini menunjukkan adanya pengaruh gaya deformasi setelah proses pembentukan batuan." },
+            { name: "Litologi tuf lapili", lat: -5.429023, lng: 105.154569, desc: "Lokasi ini memperlihatkan bongkah batuan tuff lapili yang terbentuk dari hasil letusan eksplosif gunung api. Batuan tersusun oleh fragmen vulkanik berukuran lapili yang terikat oleh matriks abu vulkanik. Kehadiran tuff lapili menunjukkan adanya fase erupsi eksplosif pada sejarah pembentukan Gunung Betung." },
+            { name: "Pertigaan air terjun", lat: -5.419760, lng: 105.142260, desc: "Lokasi pertigaan menjadi titik percabangan jalur menuju air terjun dan jalur utama pendakian menuju basecamp. Secara geomorfologi area ini berada pada lereng dengan kemiringan sedang dan tersusun oleh material vulkanik hasil pelapukan yang cukup tebal." },
+            { name: "Air terjun (litologi andesit)", lat: -5.420126, lng: 105.143527, desc: "Air terjun ini berkembang pada litologi andesit yang memiliki ketahanan cukup tinggi terhadap erosi. Struktur batuan terlihat kompak dengan warna abu-abu hingga kehitaman. Aliran air memanfaatkan rekahan alami pada batuan sehingga membentuk tebing curam dan morfologi air terjun yang khas." },
+            { name: "Pos pendaftaran", lat: -5.408159, lng: 105.143373, desc: "Pos pendaftaran merupakan titik awal kegiatan geotrail pendakian Gunung Betung. Lokasi ini berfungsi sebagai tempat registrasi pendaki sekaligus pusat informasi mengenai jalur pendakian, kondisi cuaca, dan aturan konservasi kawasan. Dari area ini mulai terlihat karakter morfologi perbukitan vulkanik yang menjadi ciri utama Gunung Betung." }
         ];
 
         /**
@@ -1058,12 +1157,6 @@
             raycaster: new THREE.Raycaster(),
             mouse: new THREE.Vector2(),
             rings: [], // Untuk animasi denyut
-            
-            // Konfigurasi Edit Mode
-            isEditMode: false,
-            selectedHotspot: null,
-            originalHotspotMat: null,
-            highlightMat: new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.5 }),
 
             // Bounds Model untuk normalisasi koordinat
             modelBox: new THREE.Box3(),
@@ -1232,74 +1325,21 @@
                 if (this.currentMode === mode) return;
                 
                 // Update UI Buttons
-                document.querySelectorAll('.mode-btn:not(.btn-edit):not(#btn-export-titik)').forEach(btn => btn.classList.remove('active'));
-                event.currentTarget.classList.add('active');
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                
+                // Handling button active class without relying on global event object
+                const targetBtn = document.querySelector(`.mode-btn[onclick*="${mode}"]`);
+                if(targetBtn) targetBtn.classList.add('active');
                 
                 // Toggle Legend Morfometri
                 document.getElementById('legend-morphometry').style.display = (mode === 'morphometry') ? 'block' : 'none';
+                
+                // Toggle Legend Geologi
+                document.getElementById('legend-geology').style.display = (mode === 'geology') ? 'block' : 'none';
 
                 this.currentMode = mode;
                 
-                // Keluar dari edit mode jika ganti model untuk mencegah bug referensi
-                if(this.isEditMode) this.toggleEditMode();
-
                 this.loadModel(mode);
-            },
-
-            toggleEditMode: function() {
-                this.isEditMode = !this.isEditMode;
-                const btn = document.getElementById('btn-toggle-edit');
-                const btnExport = document.getElementById('btn-export-titik');
-                const helperText = document.getElementById('edit-helper-text');
-                
-                if (this.isEditMode) {
-                    btn.classList.add('active');
-                    btn.innerHTML = "Selesai Edit";
-                    document.body.classList.add('editing-mode');
-                    helperText.style.display = 'block';
-                    btnExport.style.display = 'flex';
-                } else {
-                    btn.classList.remove('active');
-                    btn.innerHTML = "✏️ Edit Posisi Titik";
-                    document.body.classList.remove('editing-mode');
-                    helperText.style.display = 'none';
-                    btnExport.style.display = 'none';
-                    
-                    // Kembalikan material ashotspot terpilih
-                    if (this.selectedHotspot && this.originalHotspotMat) {
-                        this.selectedHotspot.material = this.originalHotspotMat;
-                    }
-                    this.selectedHotspot = null;
-                }
-            },
-
-            exportPoints: function() {
-                // Generate format data titik yang baru
-                let output = "const hotspotData = [\n";
-                hotspotData.forEach((pt, i) => {
-                    // Escape petik ganda untuk desc
-                    const safeDesc = pt.desc.replace(/"/g, '\\"');
-                    output += `            { name: "${pt.name}", lat: ${pt.lat.toFixed(6)}, lng: ${pt.lng.toFixed(6)}, desc: "${safeDesc}" }`;
-                    if (i < hotspotData.length - 1) output += ",\n";
-                    else output += "\n";
-                });
-                output += "        ];";
-                
-                console.log("=== KODE TITIK TERBARU ===");
-                console.log(output);
-                
-                // Copy ke clipboard
-                const textArea = document.createElement("textarea");
-                textArea.value = output;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    alert("✅ Kode array 'hotspotData' terbaru berhasil disalin (copy)!\n\nSilakan kembali ke file HTML Anda (teks editor), hapus bagian 'const hotspotData = [...];' yang lama, lalu Paste data yang baru ini.");
-                } catch (err) {
-                    alert("Data titik terbaru telah dicetak di Console Browser (tekan F12). Silakan salin dari sana.");
-                }
-                document.body.removeChild(textArea);
             },
 
             createGeologyOverlays: function() {
@@ -1343,8 +1383,6 @@
                 const sphereMat = new THREE.MeshStandardMaterial({ 
                     color: 0xd4af37, roughness: 0.2, metalness: 0.8 
                 });
-                // Simpan referensi material asli untuk fitur edit
-                this.originalHotspotMat = sphereMat;
 
                 const ringGeo = new THREE.TorusGeometry(radius * 2, radius * 0.2, 16, 64);
                 const ringMat = new THREE.MeshBasicMaterial({ 
@@ -1443,10 +1481,10 @@
                     tooltip.style.top = (e.clientY - 10) + 'px';
                     tooltip.style.opacity = 1;
                     
-                    if(!this.isEditMode) document.body.style.cursor = 'pointer';
+                    document.body.style.cursor = 'pointer';
                 } else {
                     tooltip.style.opacity = 0;
-                    if(!this.isEditMode) document.body.style.cursor = 'default';
+                    document.body.style.cursor = 'default';
                 }
             },
 
@@ -1463,89 +1501,31 @@
             handleInteraction: function(x, y) {
                 if(document.getElementById('panorama-container').classList.contains('active')) return;
 
-                if (this.isEditMode) {
-                    // --- LOGIKA EDIT MODE ---
+                // --- LOGIKA NORMAL (VIEW MODE) ---
+                const hMeshes = this.hotspotGroup.children.map(g => g.children[0]);
+                const intersects = this.getRaycastIntersects(x, y, hMeshes);
+
+                if (intersects.length > 0) {
+                    const group = intersects[0].object.parent;
+                    const data = group.userData;
+                    const pos = group.position;
+
+                    // Sembunyikan tooltip saat animasi
+                    document.getElementById('tooltip-3d').style.opacity = 0;
+
+                    // GSAP Zoom Animation
+                    gsap.to(this.controls.target, { 
+                        x: pos.x, y: pos.y, z: pos.z, duration: 1.2, ease: "power2.inOut" 
+                    });
                     
-                    // 1. Cek apakah mengklik hotspot
-                    const hMeshes = this.hotspotGroup.children.map(g => g.children[0]);
-                    const hIntersects = this.getRaycastIntersects(x, y, hMeshes);
-                    
-                    if (hIntersects.length > 0) {
-                        const clickedMesh = hIntersects[0].object;
-                        
-                        // Kembalikan warna hotspot sebelumnya jika ada
-                        if (this.selectedHotspot) {
-                            this.selectedHotspot.material = this.originalHotspotMat;
+                    // Posisi kamera mendekat dari atas
+                    gsap.to(this.camera.position, {
+                        x: pos.x + 5, y: pos.y + 5, z: pos.z + 5, duration: 1.2, ease: "power2.inOut",
+                        onComplete: () => {
+                            // Buka 360 Viewer dan passing data lengkap
+                            app360.openViewer(data);
                         }
-                        
-                        // Pilih hotspot baru
-                        this.selectedHotspot = clickedMesh;
-                        this.selectedHotspot.material = this.highlightMat;
-                        return; // Selesai interaksi
-                    }
-
-                    // 2. Jika hotspot sudah terpilih, dan mengklik model/terrain
-                    if (this.selectedHotspot) {
-                        const tIntersects = this.getRaycastIntersects(x, y, [this.modelGroup]);
-                        if (tIntersects.length > 0) {
-                            const newPoint = tIntersects[0].point;
-                            // Pindahkan Group Induk dari mesh terpilih
-                            const group = this.selectedHotspot.parent;
-                            // Tambahkan sedikit offset Y agar tidak tenggelam
-                            group.position.set(newPoint.x, newPoint.y + 0.15, newPoint.z);
-                            
-                            // Hitung balik posisi X/Z ke koordinat Lat/Lng baru
-                            const minLat = -5.429191, maxLat = -5.408159;
-                            const minLng = 105.142062, maxLng = 105.155359;
-                            const sizeX = this.modelBox.max.x - this.modelBox.min.x;
-                            const sizeZ = this.modelBox.max.z - this.modelBox.min.z;
-                            
-                            const normX = (newPoint.x - this.modelBox.min.x) / sizeX;
-                            const newLng = normX * (maxLng - minLng) + minLng;
-                            
-                            const normZ = (this.modelBox.max.z - newPoint.z) / sizeZ;
-                            const newLat = normZ * (maxLat - minLat) + minLat;
-                            
-                            // Update data di memori aplikasi
-                            group.userData.lat = newLat;
-                            group.userData.lng = newLng;
-                            hotspotData[group.userData.id].lat = newLat;
-                            hotspotData[group.userData.id].lng = newLng;
-                            
-                            console.log(`Titik "${group.userData.name}" dipindah ke -> Lat: ${newLat.toFixed(6)}, Lng: ${newLng.toFixed(6)}`);
-
-                            // Visual feedback
-                            gsap.from(group.scale, { x: 2, y: 2, z: 2, duration: 0.5, ease: "bounce.out" });
-                        }
-                    }
-
-                } else {
-                    // --- LOGIKA NORMAL (VIEW MODE) ---
-                    const hMeshes = this.hotspotGroup.children.map(g => g.children[0]);
-                    const intersects = this.getRaycastIntersects(x, y, hMeshes);
-
-                    if (intersects.length > 0) {
-                        const group = intersects[0].object.parent;
-                        const data = group.userData;
-                        const pos = group.position;
-
-                        // Sembunyikan tooltip saat animasi
-                        document.getElementById('tooltip-3d').style.opacity = 0;
-
-                        // GSAP Zoom Animation
-                        gsap.to(this.controls.target, { 
-                            x: pos.x, y: pos.y, z: pos.z, duration: 1.2, ease: "power2.inOut" 
-                        });
-                        
-                        // Posisi kamera mendekat dari atas
-                        gsap.to(this.camera.position, {
-                            x: pos.x + 5, y: pos.y + 5, z: pos.z + 5, duration: 1.2, ease: "power2.inOut",
-                            onComplete: () => {
-                                // Buka 360 Viewer dan passing data lengkap
-                                app360.openViewer(data);
-                            }
-                        });
-                    }
+                    });
                 }
             },
 
