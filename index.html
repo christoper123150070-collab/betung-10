@@ -1360,7 +1360,7 @@
                         this.modelBox.setFromObject(this.modelGroup);
 
                         // Generate Komponen Ekstra
-                        if (mode === 'geology') this.createGeologyOverlays();
+                        if (mode === 'geology') this.();
                         this.generateHotspots();
 
                         // Sembunyikan UI Loading
@@ -1473,37 +1473,9 @@
                 document.body.removeChild(textArea);
             },
 
-            createGeologyOverlays: function() {
-                // Dimensi relatif
-                const yPos = this.modelBox.max.y + 1; // Sedikit di atas permukaan
-                const spanX = (this.modelBox.max.x - this.modelBox.min.x) * 0.8;
-                
-                // 1. Garis Sesar (NW - SE)
-                const lineMat = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3 });
-                const linePoints = [];
-                // NW (Kiri atas map) ke SE (Kanan bawah map)
-                linePoints.push(new THREE.Vector3(-spanX/2, yPos, -spanX/2));
-                linePoints.push(new THREE.Vector3(spanX/2, yPos, spanX/2));
-                const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
-                const line = new THREE.Line(lineGeo, lineMat);
-                this.geologyOverlayGroup.add(line);
-
-                // 2. Pusat Erupsi (Merah)
-                const eruptGeo = new THREE.TorusGeometry(3, 0.5, 16, 100);
-                const eruptMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-                const erupt = new THREE.Mesh(eruptGeo, eruptMat);
-                erupt.rotation.x = -Math.PI / 2;
-                erupt.position.set(-5, yPos, -5); // Asumsi posisi
-                this.geologyOverlayGroup.add(erupt);
-
-                // 3. Kawah (Abu)
-                const craterGeo = new THREE.TorusGeometry(8, 0.8, 16, 100);
-                const craterMat = new THREE.MeshBasicMaterial({ color: 0x888888 });
-                const crater = new THREE.Mesh(craterGeo, craterMat);
-                crater.rotation.x = -Math.PI / 2;
-                crater.position.set(-3, yPos - 0.5, -3);
-                this.geologyOverlayGroup.add(crater);
-            },
+           createGeologyOverlays: function() {
+    // Tidak melakukan apa-apa (overlay dihapus)
+},
 
             generateHotspots: function() {
                 // Ketentuan Prompt: Marker SANGAT KECIL (radius 0.2-0.3 unit setelah scaling model = 100)
