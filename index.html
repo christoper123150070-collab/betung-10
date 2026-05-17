@@ -418,7 +418,7 @@
         /* Legend Panel Umum */
         .legend-panel {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 600px; text-align: center;
+            width: 10%; max-width: 60px; text-align: center;
         }
 
         /* Legend Morfometri Spesifik */
@@ -438,7 +438,7 @@
         }
 
         /* Legend Geologi Spesifik */
-        /* Legend Geologi - UKURAN KECIL & POSISI KANAN BAWAH */
+      /* Legend Geologi - UKURAN KECIL & POSISI KANAN BAWAH */
 #legend-geology {
     position: absolute;
     bottom: 20px;
@@ -518,6 +518,7 @@
         grid-template-columns: 1fr;
     }
 }
+
         /* Tooltip Hover */
         #tooltip-3d {
             position: absolute; pointer-events: none; opacity: 0;
@@ -1360,7 +1361,7 @@
                         this.modelBox.setFromObject(this.modelGroup);
 
                         // Generate Komponen Ekstra
-                        if (mode === 'geology') this.();
+                        if (mode === 'geology') this.createGeologyOverlays();
                         this.generateHotspots();
 
                         // Sembunyikan UI Loading
@@ -1473,10 +1474,9 @@
                 document.body.removeChild(textArea);
             },
 
-           createGeologyOverlays: function() {
+          createGeologyOverlays: function() {
     // Tidak melakukan apa-apa (overlay dihapus)
 },
-
             generateHotspots: function() {
                 // Ketentuan Prompt: Marker SANGAT KECIL (radius 0.2-0.3 unit setelah scaling model = 100)
                 // Ini setara dengan 0.2% - 0.3% dari bounding box.
