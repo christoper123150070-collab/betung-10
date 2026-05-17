@@ -438,42 +438,86 @@
         }
 
         /* Legend Geologi Spesifik */
-        #legend-geology {
-            max-width: 1000px;
-            display: none; /* Hidden by default */
-            padding: 20px;
-        }
+        /* Legend Geologi - UKURAN KECIL & POSISI KANAN BAWAH */
+#legend-geology {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    left: auto;
+    transform: none;
+    width: 280px;
+    max-width: 320px;
+    padding: 8px 10px;
+    font-size: 0.65rem;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    z-index: 10;
+    display: none; /* tetap tersembunyi secara default */
+}
 
-        .geology-legend-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-            text-align: left;
-        }
+/* Judul legend */
+#legend-geology div:first-child {
+    font-size: 0.75rem !important;
+    margin-bottom: 6px !important;
+    text-align: center;
+}
 
-        .geo-legend-item {
-            display: flex; gap: 15px;
-        }
+.geology-legend-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 kolom agar lebih ringkas */
+    gap: 6px;
+}
 
-        .geo-color-box {
-            width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0; margin-top: 3px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.5);
-        }
+.geo-legend-item {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+}
 
-        .geo-text {
-            font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.5;
-        }
+.geo-color-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
 
-        .geo-text strong {
-            color: var(--color-text-main); font-size: 0.95rem; display: block; margin-bottom: 8px; letter-spacing: 0.5px;
-        }
+.geo-text {
+    font-size: 0.6rem;
+    line-height: 1.2;
+    color: var(--color-text-muted);
+}
 
-        .geo-text ul {
-            padding-left: 15px; margin: 0; list-style-type: disc;
-        }
+.geo-text strong {
+    font-size: 0.65rem;
+    display: block;
+    margin-bottom: 2px;
+    color: var(--color-text-main);
+}
 
-        .geo-text li {
-            margin-bottom: 5px;
-        }
+.geo-text ul {
+    padding-left: 10px;
+    margin: 0;
+}
 
+.geo-text li {
+    margin-bottom: 2px;
+}
+
+/* Responsif: layar kecil (mobile) jadi 1 kolom */
+@media (max-width: 640px) {
+    #legend-geology {
+        width: 220px;
+        right: 10px;
+        bottom: 10px;
+    }
+    .geology-legend-grid {
+        grid-template-columns: 1fr;
+    }
+}
         /* Tooltip Hover */
         #tooltip-3d {
             position: absolute; pointer-events: none; opacity: 0;
